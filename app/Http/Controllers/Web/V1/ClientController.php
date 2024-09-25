@@ -98,7 +98,7 @@ class ClientController extends Controller
     }
 
     /**
-     * Single Task
+     * Single Task for client
      */
     public function singleTask($id)
     {
