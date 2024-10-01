@@ -15,11 +15,26 @@ Route::group(['prefix' => 'auth'], function () {
     // Route::post('change-password', 'ForgotPasswordController@changePassword')->middleware('auth');
 });
 
+Route::group(['prefix' => 'tasks'], function () {
+    Route::get('/all', [TaskController::class, 'allTask']);
+    Route::get('/single/{id}', [TaskController::class, 'singleTask']);
+});
+
 Route::group(['middleware' => 'auth', 'prefix' => 'client'], function () {
     Route::get('/my-tasks', [ClientController::class, 'myTasks']);
     Route::get('/single-task/{id}', [ClientController::class, 'singleTask']);
     Route::post('/create-task', [ClientController::class, 'createTask']);
+
 });
+
+Route::group(['middleware' => 'auth', 'prefix' => 'freelancer'], function () {
+    Route::post('/make-offer/{task_id}', [FreelanceController::class, 'makeOffer']);
+    Route::post('/update-offer/{task_id}/{task_offer_id}', [FreelanceController::class, 'updateOffer']);
+    Route::get('/my-offers', [FreelanceController::class, 'myOffers']);
+    Route::get('/single-offer/{id}', [FreelanceController::class, 'singleOffer']);
+
+});
+
 
 
 

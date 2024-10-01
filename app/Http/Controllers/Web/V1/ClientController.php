@@ -107,6 +107,7 @@ class ClientController extends Controller
 
             $task = Task::findOrFail($id);
             if ($task->createdBy->id == $user->id) {
+                $task['offers'] = $task->offers;
                 return response()->json([
                     'success' => true,
                     'message' => $task,
@@ -150,4 +151,6 @@ class ClientController extends Controller
     {
         //
     }
+
+
 }

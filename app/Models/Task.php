@@ -40,4 +40,9 @@ class Task extends Model
     {
         return $this->belongsTo(User::class, 'freelancer_id');
     }
+
+    public function offers()
+    {
+        return $this->hasMany(TaskOffer::class, 'task_id');
+    }
 }
