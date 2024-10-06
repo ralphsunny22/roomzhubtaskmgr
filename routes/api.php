@@ -1,5 +1,5 @@
 <?php
-// namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,8 +17,9 @@ use Illuminate\Support\Facades\Route;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
-Route::group(['namespace' => 'Web\V1'], function () {
-    return 'hhhh';
-    // Route::get('test', 'ClientController@index');
-});
+// Route::group(['namespace' => 'Web\V1'], function () {
+//     return 'hhhh';
+//     // Route::get('test', 'ClientController@index');
+// });
+// Route::get('/users', [TaskController::class, 'allTask']);
 

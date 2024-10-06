@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Sample data for the seekers table
+        // Sample data for the seekers table nick@email.com, client@email.com, freelancer@email.com
         $users = [
             [
                 'name' => 'Raphael Santos',

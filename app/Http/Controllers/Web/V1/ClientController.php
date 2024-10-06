@@ -66,7 +66,7 @@ class ClientController extends Controller
             $task->is_done_inperson = $data['is_done_inperson'] ?? false;
             $task->task_description = $data['task_description'] ?? null;
 
-            $task->task_budget = (int) $data['task_budget'] ?? null;
+            $task->task_budget = $data['task_budget'] ? (int) $data['task_budget'] : null;
 
             $task->status = 'pending';
 
