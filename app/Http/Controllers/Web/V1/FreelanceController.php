@@ -23,6 +23,7 @@ class FreelanceController extends Controller
 
             $task = Task::findOrFail($task_id);
 
+            //u cannot make-offer on ur own price
             if ($task->created_by == $user->id) {
                 return response()->json([
                     'success' => false,
@@ -46,6 +47,11 @@ class FreelanceController extends Controller
             $taskOffer->amount_offered_by_freelancer = (int) $data['amount_offered_by_freelancer'];
             $taskOffer->client_id = $task->created_by;
             $taskOffer->freelancer_id = $user->id;
+
+            $taskOffer->freelancer_date_availabilty = $data['freelancer_date_availabilty'] ? $data['freelancer_date_availabilty'] : null;
+            $taskOffer->freelancer_start_time_available = $data['freelancer_start_time_available'] ? $data['freelancer_start_time_available'] : null;
+            $taskOffer->freelancer_end_time_available = $data['freelancer_end_time_available'] ? $data['freelancer_end_time_available'] : null;
+            $taskOffer->freelancer_proposal = $data['freelancer_proposal'] ? $data['freelancer_proposal'] : null;
 
             $taskOffer->save();
 

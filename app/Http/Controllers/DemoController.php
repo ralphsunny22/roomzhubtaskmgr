@@ -3,67 +3,61 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 
-class DemoController extends Controller
+class PaymentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function users()
+    public function initializePayment(Request $request)
     {
-        $users = User::all();
-        return response()->json([
-            'success' => false,
-            'data' => $users,
+        $email = $request->get('email');
+        $amount = $request->get('amount') * 100; // Convert amount to kobo
+
+        $client = new Client([
+            'base_uri' => 'https://api.paystack.co',
         ]);
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        $data = [
+            'email' => $email,
+            'amount' => $amount,
+        ];
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        try {
+            $response = $client->post('/transaction/initialize', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . env('PAYSTACK_SECRET_KEY'),
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $data,
+            ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+            $statusCode = $response->getStatusCode();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+            if ($statusCode === 200) {
+                $responseData = json_decode($response->getBody(), true);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+                if ($responseData['status'] === true) {
+                    $authorizationUrl = $responseData['data']['authorization_url'];
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+                    // Redirect to the authorization URL for payment
+                    return redirect($authorizationUrl);
+                } else {
+                    // Handle error from Paystack
+                    return response()->json(['error' => $responseData['message']], $statusCode);
+                }
+            } else {
+                // Handle HTTP error from the request
+                return response()->json(['error' => 'Failed to initialize payment'], $statusCode);
+            }
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response->getStatusCode();
+            $responseBody = $response->getBody()->getContents();
+
+            // Log the error for debugging
+            \Log::error("Paystack API Error: $statusCode - $responseBody");
+
+            return response()->json(['error' => 'An error occurred during payment initialization'], $statusCode);
+        }
     }
 }

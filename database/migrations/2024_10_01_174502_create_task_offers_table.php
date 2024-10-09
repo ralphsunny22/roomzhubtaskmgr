@@ -18,6 +18,10 @@ return new class extends Migration
             $table->float('amount_offered_by_freelancer')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->unsignedBigInteger('freelancer_id')->nullable();
+            $table->string('freelancer_date_availabilty')->nullable();
+            $table->string('freelancer_start_time_available')->nullable();
+            $table->string('freelancer_end_time_available')->nullable();
+            $table->longText('freelancer_proposal')->nullable();
             $table->string('status')->default('pending');
 
             $table->timestamps();

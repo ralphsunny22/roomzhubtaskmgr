@@ -37,8 +37,20 @@ class Helpers
         if (Storage::disk('public')->exists($dir . $old_image)) {
             Storage::disk('public')->delete($dir . $old_image);
         }
-        $imageName = Helpers::upload($dir, $format, $image);
+        $imageName = Helpers::upload($dir, $format, $image, 'noimage.png');
         return $imageName;
+    }
+
+    public static function removeFile(string $dir, $old_image, $default_image)
+    {
+        if ($old_image !== $default_image) {
+            if (Storage::disk('public')->exists($dir . $old_image)) {
+                Storage::disk('public')->delete($dir . $old_image);
+            }
+        }
+
+        //$imageName = Helpers::upload($dir, $format, $image, 'noimage.png');
+        //return $imageName;
     }
 
 }

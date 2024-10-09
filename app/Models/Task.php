@@ -10,9 +10,9 @@ class Task extends Model
 {
     use HasFactory;
 
-    protected $casts = [
-        'task_images' => 'array', // cast to an array
-    ];
+    // protected $casts = [
+    //     'task_images' => 'array', // cast to an array
+    // ];
 
     // Accessor to return the full path of each image in task_images
     public function getTaskImagesAttribute($value)

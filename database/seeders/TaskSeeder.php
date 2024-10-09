@@ -81,6 +81,40 @@ class TaskSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+
+            [
+                'created_by' => 3,
+                'freelancer_id' => null,
+                'task_title' => 'Replace broken tiles',
+                'task_date_preceed' => 'on', // on, before, flexible
+                'task_date' => '2024-09-28',
+                'task_part_of_day' => 'mid-day', // morning, mid-day, afternoon, evening
+                'task_time_of_day' => '10am - 2pm', // before 10am, 10am - 2pm, 2pm - 6pm, after 6pm
+                'is_removal_task' => false, // involves transit
+
+                'pickup_latitude' => '40.712776',
+                'pickup_longitude' => '-74.005974',
+                'pickup_city' => 'New York',
+                'pickup_state' => 'NY',
+                'pickup_country' => 'USA',
+                'pickup_address' => '1234 Main St, New York, NY',
+
+                'dropoff_latitude' => '40.730610',
+                'dropoff_longitude' => '-73.935242',
+                'dropoff_city' => 'Brooklyn',
+                'dropoff_state' => 'NY',
+                'dropoff_country' => 'USA',
+                'dropoff_address' => '5678 Elm St, Brooklyn, NY',
+
+                'is_done_online' => false,
+                'is_done_inperson' => true,
+                'task_description' => 'Arrange my table sets',
+                'task_images' => json_encode(['noimage.png', 'noimage.png']),
+                'task_budget' => 150.50,
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 }

@@ -23,6 +23,13 @@ return new class extends Migration
             $table->string('task_part_of_day')->nullable(); //morning, mid-day, afternoon evening
             $table->string('task_time_of_day')->nullable(); // before 10am, 10am - 2pm, 2pm - 6pm, after 6pm
 
+            $table->string('task_current_latitude')->nullable();
+            $table->string('task_current_longitude')->nullable();
+            $table->string('task_current_city')->nullable();
+            $table->string('task_current_state')->nullable();
+            $table->string('task_current_country')->nullable();
+            $table->string('task_current_address')->nullable();
+
             $table->boolean('is_removal_task')->default(false); // involves transit
 
             $table->string('pickup_latitude')->nullable();
