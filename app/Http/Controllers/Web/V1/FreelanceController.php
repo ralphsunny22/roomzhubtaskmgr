@@ -48,7 +48,7 @@ class FreelanceController extends Controller
             $taskOffer->client_id = $task->created_by;
             $taskOffer->freelancer_id = $user->id;
 
-            $taskOffer->freelancer_date_availabilty = $data['freelancer_date_availabilty'] ? $data['freelancer_date_availabilty'] : null;
+            $taskOffer->freelancer_date_availability = $data['freelancer_date_availability'] ? $data['freelancer_date_availability'] : null;
             $taskOffer->freelancer_start_time_available = $data['freelancer_start_time_available'] ? $data['freelancer_start_time_available'] : null;
             $taskOffer->freelancer_end_time_available = $data['freelancer_end_time_available'] ? $data['freelancer_end_time_available'] : null;
             $taskOffer->freelancer_proposal = $data['freelancer_proposal'] ? $data['freelancer_proposal'] : null;
