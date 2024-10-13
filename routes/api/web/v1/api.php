@@ -25,6 +25,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'client'], function () {
     Route::get('/single-task/{id}', [ClientController::class, 'singleTask']);
     Route::post('/create-task', [ClientController::class, 'createTask']);
     Route::post('/update-task/{id}', [ClientController::class, 'updateTask']);
+    Route::get('/task-offers/{task_id?}', [ClientController::class, 'taskOffers']);
+    Route::get('/single-offer/{id}', [ClientController::class, 'singleOffer']);
 
 });
 

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\CentralLogics\Helpers;
 
 use App\Models\Task;
+use App\Models\TaskOffer;
 
 class ClientController extends Controller
 {
@@ -231,7 +232,47 @@ class ClientController extends Controller
         }
     }
 
+    //all offers regardless of tasks
+    public function taskOffers($task_id="")
+    {
+        $perPage = 30; // Adjust perPage value as needed
+        $user = Auth::user();
+        $taskOffers = $task_id ?
+        $user->clientTaskOffers()->where('task_id', $task_id)->orderBy('id', 'desc')->paginate($perPage) :
+        $user->clientTaskOffers()->orderBy('id', 'desc')->paginate($perPage);
 
+        return response()->json([
+            'success' => true,
+            'data' => $taskOffers
+        ]);
+    }
+
+    public function singleOffer($id)
+    {
+        try {
+            $user = Auth::user();
+
+            $taskOffer = TaskOffer::findOrFail($id);
+            if ($taskOffer->client->id == $user->id) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $taskOffer,
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized request',
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+    }
 
     /**
      * Remove the specified resource from storage.

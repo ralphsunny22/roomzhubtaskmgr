@@ -107,15 +107,15 @@ class FreelanceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function myOffers(Request $request)
+    public function myOffers()
     {
         $perPage = 30; // Adjust perPage value as needed
         $user = Auth::user();
-        $taskOffers = $user->taskOffers()->orderBy('id', 'desc')->paginate($perPage);;
+        $taskOffers = $user->freelancerTaskOffers()->orderBy('id', 'desc')->paginate($perPage);;
 
         return response()->json([
             'success' => true,
-            'data' => $taskOffers
+            'data' => $freelancerTaskOffers
         ]);
     }
 

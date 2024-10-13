@@ -13,6 +13,7 @@ class Task extends Model
     // protected $casts = [
     //     'task_images' => 'array', // cast to an array
     // ];
+    protected $appends = ['creator'];
 
     // Accessor to return the full path of each image in task_images
     public function getTaskImagesAttribute($value)
@@ -35,6 +36,13 @@ class Task extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    // Accessor to return the related user or their name, for example
+    public function getCreatorAttribute()
+    {
+        $owner = User::where('id', $this->created_by)->select('id', 'name')->first();
+        return $owner;
+    }
+
     //user that did the job
     public function freelancer()
     {
@@ -45,4 +53,5 @@ class Task extends Model
     {
         return $this->hasMany(TaskOffer::class, 'task_id');
     }
+
 }
