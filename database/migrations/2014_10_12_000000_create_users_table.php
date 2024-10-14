@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('profile_picture')->nullable();
+            $table->longText('fcm_device_token')->nullable();
             $table->rememberToken();
             $table->longText('user_remember_token')->nullable(); //will be used to check credentials while navigating diff apps/sites from roomzhub
             $table->string('signin_type')->default('email');

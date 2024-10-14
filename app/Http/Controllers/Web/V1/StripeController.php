@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Web\V1;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\CentralLogics\Helpers;
+
 use Stripe\Stripe;
 use Stripe\Account;
 use Stripe\AccountLink;
@@ -16,10 +19,11 @@ class StripeController extends Controller
     {
         try {
             // Initialize Stripe with your secret key
-            Stripe::setApiKey(env('STRIPE_SECRET'));
+            Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
 
             // Get authenticated user (assuming user is authenticated)
-            $authUser = $request->user();
+            // $authUser = $request->user();
+            $authUser = Auth::user();
 
             // Create a custom connected account
             $account = Account::create([
@@ -31,7 +35,7 @@ class StripeController extends Controller
             ]);
 
             // Get base URL dynamically or define it in the environment configuration
-            $baseUrl = config('app.url'); // Or dynamically from request: $request->getSchemeAndHttpHost();
+            // $baseUrl = config('app.url'); // Or dynamically from request: $request->getSchemeAndHttpHost();
 
             // Create an account link for onboarding
             $accountLink = AccountLink::create([

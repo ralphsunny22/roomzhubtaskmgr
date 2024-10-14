@@ -39,13 +39,19 @@ Route::group(['middleware' => 'auth', 'prefix' => 'freelancer'], function () {
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'payment'], function () {
-    Route::post('/stripe/create-account', [StripeController::class, 'createStripeCustomConnectedAccount']);
+    Route::get('/stripe/create-account', [StripeController::class, 'createStripeCustomConnectedAccount']);
     Route::get('/stripe/reauth', [StripeController::class, 'reauth'])->name('stripe.reauth');
     Route::get('/stripe/onboarding-success', [StripeController::class, 'onboardingSuccess'])->name('stripe.onboarding-success');
 
 });
 
+Route::group(['prefix' => 'fcm'], function () {
+    Route::post('/store-token', [FCMTokenController::class, 'store']);
+});
 
+Route::group(['prefix' => 'chat'], function () {
+    Route::post('/send-message', [MessageController::class, 'sendMessage']);
+});
 
 
 
