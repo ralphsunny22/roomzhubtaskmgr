@@ -25,6 +25,10 @@ class MessageController extends Controller
         $request->validate([
             'sender_id' => 'required|exists:users,id',
             'receiver_id' => 'required|exists:users,id',
+
+            'task_id' => 'required|exists:tasks,id',
+            'task_offer_id' => 'required|exists:task_offers,id',
+
             'message' => 'required|string',
         ]);
 
@@ -34,6 +38,9 @@ class MessageController extends Controller
                 'date_time' => now(),
                 'sender_id' => $request->sender_id,
                 'receiver_id' => $request->receiver_id,
+
+                'task_id' => $request->task_id,
+                'task_offer_id' => $request->task_offer_id,
                 'message' => $request->message,
             ]);
 
@@ -56,13 +63,16 @@ class MessageController extends Controller
                         'token' => $token,
                         "data" => [
                             "title" => 'New Message',
-                            "body" => (string) $message,
+                            "body" => (string) $message->message,
                             "sender_id" => (string) $message->sender_id,
                             "receiver_id" => (string) $message->receiver_id,
+
+                            'task_id' => (string) $message->task_id,
+                            'task_offer_id' => (string) $message->task_offer_id,
                         ],
                         'notification' => [
                             'title' => 'New Message',
-                            'body' => (string) $message,
+                            'body' => (string) $message->message,
                             // 'sound' => 'notification.wav', // Specify the sound file name
                         ],
                     ],
@@ -106,11 +116,31 @@ class MessageController extends Controller
         }
 
         // Construct the message payload
+        // $message = [
+        //     'message' => [
+        //         'token' => $token,
+        //         'notification' => [
+        //             'title' => 'New Order',
+        //             'body' => 'You have a new order!',
+        //             // 'sound' => 'notification.wav', // Specify the sound file name
+        //         ],
+        //     ],
+        // ];
+
         $message = [
             'message' => [
                 'token' => $token,
+                "data" => [
+                    "title" => 'New Message',
+                    "body" => 'You have a new order!',
+                    "sender_id" => '1',
+                    "receiver_id" => '2',
+
+                    'task_id' => '1',
+                    'task_offer_id' => '2',
+                ],
                 'notification' => [
-                    'title' => 'New Order',
+                    'title' => 'New Message',
                     'body' => 'You have a new order!',
                     // 'sound' => 'notification.wav', // Specify the sound file name
                 ],

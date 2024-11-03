@@ -19,6 +19,8 @@ return new class extends Migration
             $table->unsignedBigInteger('receiver_id');
             $table->longText('message');
             $table->enum('message_type', ['text', 'attachment'])->default('text');
+            $table->unsignedBigInteger('task_offer_id');
+            $table->unsignedBigInteger('task_id');
             $table->boolean('is_received')->default(0);
 
             $table->timestamps();
