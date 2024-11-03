@@ -20,7 +20,7 @@ class MessageController extends Controller
         $this->fcmService = $fcmService;
     }
 
-    public function sendMessage1(Request $request)
+    public function sendMessage(Request $request)
     {
         $request->validate([
             'sender_id' => 'required|exists:users,id',
@@ -40,15 +40,42 @@ class MessageController extends Controller
             // Retrieve recipient device token
             $token = $this->getRecipientDeviceToken($message->receiver_id);
 
-            // Send FCM notification, tis wil return true
-            $this->fcmService->sendNotification(
-                $token,
-                'New Message',
-                'You have received a new message',
-                ['message_id' => $message->id]
-            );
+            //Using package Send FCM notification, tis wil return true
+            // $this->fcmService->sendNotification(
+            //     $token,
+            //     'New Message',
+            //     'You have received a new message',
+            //     ['message_id' => $message->id]
+            // );
 
-            return response()->json(['success' => true, 'data'=>$message]);
+            //using core firebase
+            if ($token) {
+                // Construct the message payload
+                $msg = [
+                    'message' => [
+                        'token' => $token,
+                        "data" => [
+                            "title" => 'New Message',
+                            "body" => (string) $message,
+                            "sender_id" => (string) $message->sender_id,
+                            "receiver_id" => (string) $message->receiver_id,
+                        ],
+                        'notification' => [
+                            'title' => 'New Message',
+                            'body' => (string) $message,
+                            // 'sound' => 'notification.wav', // Specify the sound file name
+                        ],
+                    ],
+                ];
+
+                // Call the sendToFirebase function
+                if (Helpers::sendToFirebase($msg)) {
+                    return response()->json(['success' => true, 'message' => 'Notification sent successfully.', 'data'=>$message]);
+                }
+            }
+
+            return response()->json(['success' => true, 'message' => 'No Receiver token.', 'data'=>$message]);
+
         } catch (\Exception $e) {
             //throw $th;
             return response()->json(['success'=>false, 'error'=>$e->getMessage()],400);
@@ -65,7 +92,7 @@ class MessageController extends Controller
     ///////////////////////////////////////////////////////
 
     // Sample usage within your controller or service
-    public function sendMessage()
+    public function sendMessage1()
     {
         // $credentials = Helpers::getFirebaseCredentials();
         // return response()->json(['message' => $credentials['project_id']]);
