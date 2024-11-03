@@ -20,6 +20,43 @@ class MessageController extends Controller
         $this->fcmService = $fcmService;
     }
 
+    public function chatHistory($task_offer_id, $selected_user_id)
+    {
+        // Validate the incoming request to ensure receiver_id is provided and exists
+
+        try {
+            // Get the authenticated user's ID
+            $authUserId = Auth::id();
+
+            // Retrieve the messages exchanged between the authenticated user and the specified receiver
+            $messages = Message::where(function ($query) use ($authUserId, $task_offer_id, $selected_user_id) {
+                $query->where('sender_id', $authUserId)
+                    ->where('receiver_id', $selected_user_id)
+                    ->where('task_offer_id', $task_offer_id);
+            })
+            ->orWhere(function ($query) use ($authUserId, $selected_user_id) {
+                $query->where('sender_id', $selected_user_id)
+                    ->where('receiver_id', $authUserId)
+                    ->where('task_offer_id', $task_offer_id);
+            })
+            ->orderBy('created_at', 'asc') // Order messages by creation date in ascending order
+            ->get();
+
+            $receivedMessageIds = $messages->where('receiver_id', $authUserId)->pluck('id');
+
+            if ($receivedMessageIds->isNotEmpty()) {
+                Message::whereIn('id', $receivedMessageIds)->update(['is_received' => 1]);
+            }
+
+            // Return the messages as a JSON response
+            return response()->json(['success'=>true, 'data'=>$messages]);
+        } catch (\Exception $e) {
+            //throw $th;
+            return response()->json(['success'=>false, 'message'=>'Something went wrong', 'error'=>$e->getMessage()]);
+        }
+
+    }
+
     public function sendMessage(Request $request)
     {
         $request->validate([
@@ -150,6 +187,7 @@ class MessageController extends Controller
         // Call the sendToFirebase function
         if (Helpers::sendToFirebase($message)) {
             return response()->json(['message' => 'Notification sent successfully.']);
+            return response()->json(['success' => true, 'message' => 'Notification sent successfully.', 'data'=>$message]);
         }
 
         return response()->json(['message' => 'Failed to send notification.'], 500);
