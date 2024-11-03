@@ -26,7 +26,9 @@ Route::group(['middleware' => 'auth', 'prefix' => 'client'], function () {
     Route::post('/create-task', [ClientController::class, 'createTask']);
     Route::post('/update-task/{id}', [ClientController::class, 'updateTask']);
     Route::get('/task-offers/{task_id?}', [ClientController::class, 'taskOffers']);
-    Route::get('/single-offer/{id}', [ClientController::class, 'singleOffer']);
+    Route::get('/single-offer/{task_offer_id}', [ClientController::class, 'singleOffer']);
+    Route::post('/accept-offer/{task_offer_id}', [ClientController::class, 'acceptOffer']);
+    Route::post('/confirm-payment', [ClientController::class, 'confirmPayment']);
 
 });
 
@@ -34,7 +36,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'freelancer'], function () {
     Route::post('/make-offer/{task_id}', [FreelanceController::class, 'makeOffer']);
     Route::post('/update-offer/{task_id}/{task_offer_id}', [FreelanceController::class, 'updateOffer']);
     Route::get('/my-offers', [FreelanceController::class, 'myOffers']);
-    Route::get('/single-offer/{id}', [FreelanceController::class, 'singleOffer']);
+    Route::get('/single-offer/{task_offer_id}', [FreelanceController::class, 'singleOffer']);
 
 });
 
@@ -45,7 +47,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'payment'], function () {
 
 });
 
-Route::group(['prefix' => 'fcm'], function () {
+Route::group(['middleware' => 'auth', 'prefix' => 'fcm'], function () {
     Route::post('/store-token', [FCMTokenController::class, 'store']);
 });
 

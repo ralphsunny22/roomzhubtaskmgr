@@ -4,22 +4,25 @@ namespace App\Http\Controllers\Web\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\DeviceToken;
+use Illuminate\Support\Facades\Auth;
+
+use App\Models\User;
 
 class FCMTokenController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    //store firebase token
     public function FCMStoreToken(Request $request)
     {
-        $deviceToken = DeviceToken::create([
-            'user_id' => 1,
-            'device_token' => $request->device_token,
-        ]);
+        // Aim: Create or update fcm_device_token
+        $user = Auth::user();
 
-        return response()->json(['success' => true, 'data' => $deviceToken]);
+        // Update the FCM token directly without checking if it exists
+        $user->fcm_device_token = $request->fcm_device_token;
+        $user->save();
+
+        return response()->json(['success' => true, 'data' => $user->fcm_device_token]);
     }
+
 
     /**
      * Show the form for creating a new resource.

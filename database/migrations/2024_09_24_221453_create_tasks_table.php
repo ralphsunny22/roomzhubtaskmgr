@@ -56,7 +56,13 @@ return new class extends Migration
             $table->float('task_budget')->nullable();
             $table->float('task_agreed_price')->nullable();
 
-            $table->string('status'); //pending
+            $table->datetime('accepted_at')->nullable(); //when client accepted and paid
+            $table->datetime('started_at')->nullable(); //when freelancer started task
+            $table->datetime('completed_at')->nullable(); //when freelancer completed task
+            $table->datetime('abandoned_at')->nullable(); ////incase, when freelancer abandoned task
+
+            $table->string('status');
+            //pending, accepted(client has paid), started(freelancer has started task), incompleted(task is started but not completed), abandoned, completed(task is done)
 
             $table->timestamps();
         });

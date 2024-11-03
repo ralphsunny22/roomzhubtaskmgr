@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('freelancer_start_time_available')->nullable();
             $table->string('freelancer_end_time_available')->nullable();
             $table->longText('freelancer_proposal')->nullable();
-            $table->string('status')->default('pending');
+
+            $table->string('status')->default('pending'); //accepted(client has paid), declined
 
             $table->timestamps();
         });

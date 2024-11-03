@@ -5,10 +5,16 @@ namespace App\Http\Controllers\Web\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use App\CentralLogics\Helpers;
+
+use Stripe\Stripe;
+use Stripe\PaymentIntent;
+use App\Rules\ValidCoupon;
 
 use App\Models\Task;
 use App\Models\TaskOffer;
+use App\Models\Payment;
 
 class ClientController extends Controller
 {
@@ -247,12 +253,12 @@ class ClientController extends Controller
         ]);
     }
 
-    public function singleOffer($id)
+    public function singleOffer($task_offer_id)
     {
         try {
             $user = Auth::user();
 
-            $taskOffer = TaskOffer::findOrFail($id);
+            $taskOffer = TaskOffer::findOrFail($task_offer_id);
             if ($taskOffer->client->id == $user->id) {
                 return response()->json([
                     'success' => true,
@@ -274,9 +280,147 @@ class ClientController extends Controller
 
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    //create payment intent
+    public function acceptOffer(Request $request, $task_offer_id)
+    {
+        try {
+            $user = Auth::user();
+
+            $taskOffer = TaskOffer::findOrFail($task_offer_id);
+
+            //valid task owner
+            if ($taskOffer->client->id == $user->id) {
+
+                Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+
+                $amount = $request->amount * 100; // Amount in cents
+
+                $paymentIntent = PaymentIntent::create([
+                    'amount' => $amount,
+                    'currency' => 'usd',
+                    'payment_method_types' => ['card'],
+                ]);
+
+                return response()->json([
+                    'clientSecret' => $paymentIntent->client_secret,
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized request',
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    //save payment after intent
+    public function confirmPayment(Request $request)
+    {
+        $user = Auth::user();
+        $validator = Validator::make($request->all(), [
+            'task_id' => 'required|exists:tasks,id',
+            'task_offer_id' => 'required|exists:task_offers,id',
+
+            'currency' => 'nullable|string',
+            'subtotal' => 'required|numeric',
+            'tax' => 'nullable|numeric',
+            'payment_method_type' => 'required|string',
+
+            'coupon_value' => 'nullable|numeric|min:1',
+            'coupon_code' => ['nullable', 'string', 'max:10', new ValidCoupon, 'required_with:coupon_value'],
+
+            'status' => 'required|string',
+        ], [
+            'task_id.required' => 'The task-id is required.',
+            'task_id.exists' => 'The selected task does not exist.',
+
+            'task_offer_id.required' => 'The task-offer-id is required.',
+            'task_offer_id.exists' => 'The selected task-offer does not exist.',
+
+            'subtotal.required' => 'The subtotal is required.',
+            'subtotal.numeric' => 'The subtotal must be a number.',
+            'tax.numeric' => 'The tax must be a number.',
+            'payment_method_type.required' => 'Payment method type is required.',
+            'payment_method_type.string' => 'Payment method type must be a string.',
+
+            'coupon_code.string' => 'The coupon code must be a string.',
+            'coupon_code.max' => 'The coupon code may not be greater than 10 characters.',
+            'coupon_code.exists' => 'The selected coupon code is invalid.',
+            'coupon_code.required_with' => 'The coupon code is required when a coupon value is present.',
+        ]);
+
+        // Handle validation failure
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'errors' => $validator->errors(),
+        //     ], 422);
+        // }
+
+        // Proceed with the rest of the logic
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => Helpers::error_processor($validator)], 403);
+        }
+
+        $task = Task::where('id', $request->task_id)->first();
+        $taskOffer = TaskOffer::where('id', $request->task_offer_id)->first();
+
+        $invoiceId = 100000 + Payment::count() + 1;
+        $invoiceId = (string)$invoiceId . 'T';
+
+        $coupon = !empty($request->coupon_code) ? Coupon::where('code', $request->coupon_code)->first() : null;
+
+        $subtotal = $request->subtotal ?? 0;
+        $tax = $request->tax ?? 0;
+        $couponValue = $request->coupon_value ?? 0;
+        $total = $subtotal + $tax + $couponValue;
+
+        $payment = new Payment();
+        $payment->created_by = $user->id;
+        // $payment->unique_key = $user->id;
+        $payment->payment_invoice_id = $invoiceId;
+        $payment->task_id = $task->id;
+        $payment->task_offer_id = $taskOffer->id;
+        $payment->description = $request->description ?? null;
+        $payment->currency = $request->currency ?? 'USD';
+        $payment->subtotal = $subtotal;
+        $payment->tax = $tax;
+        $payment->has_coupon = $coupon ? true : false;
+        $payment->coupon_id = $coupon ? $coupon->id : null;
+        $payment->coupon_value = $couponValue;
+        $payment->total = $total;
+        $payment->payment_method_type = $request->payment_method_type ? $request->payment_method_type : 'card';
+        $payment->status = 'success'; ////success, failed
+        $payment->save();
+
+        //update task
+        if ($request->status !== 'failed') {
+            $task->freelancer_id = $taskOffer->freelancer_id;
+            $task->status = 'accepted';
+            $task->accepted_at = now();
+            $task->save();
+
+            $taskOffer->status = 'accepted';
+            $taskOffer->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Task Offer Accepted and Paid Successfully!',
+                'data' => $payment
+            ]);
+        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Payment Failed',
+        ]);
+
+    }
+
     public function destroy(string $id)
     {
         //

@@ -122,12 +122,12 @@ class FreelanceController extends Controller
     /**
      * Display the specified resource.
      */
-    public function singleOffer($id)
+    public function singleOffer($task_offer_id)
     {
         try {
             $user = Auth::user();
 
-            $taskOffer = TaskOffer::findOrFail($id);
+            $taskOffer = TaskOffer::findOrFail($task_offer_id);
             if ($taskOffer->freelancer->id == $user->id) {
                 return response()->json([
                     'success' => true,

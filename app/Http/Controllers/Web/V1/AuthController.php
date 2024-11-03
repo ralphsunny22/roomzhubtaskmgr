@@ -151,6 +151,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string',
+            'fcm_device_token' => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -186,6 +187,8 @@ class AuthController extends Controller
         $user = User::findOrFail($user->id);
 
         $user->signin_type = 'email';
+
+        $user->fcm_device_token = isset($request->fcm_device_token) ? $request->fcm_device_token : $user->fcm_device_token;
         $user->save();
 
         return response()->json([
