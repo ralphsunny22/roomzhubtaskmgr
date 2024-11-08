@@ -8,7 +8,6 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::post('social-login', [AuthController::class, 'social-login']);
 
-
     ////forgot password
     // Route::post('forgot-password', 'ForgotPasswordController@sendResetLink');
     // Route::post('reset-password', 'ForgotPasswordController@resetPassword');
@@ -29,7 +28,6 @@ Route::group(['middleware' => 'auth', 'prefix' => 'client'], function () {
     Route::get('/single-offer/{task_offer_id}', [ClientController::class, 'singleOffer']);
     Route::post('/accept-offer/{task_offer_id}', [ClientController::class, 'acceptOffer']);
     Route::post('/confirm-payment', [ClientController::class, 'confirmPayment']);
-
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'freelancer'], function () {
@@ -37,14 +35,12 @@ Route::group(['middleware' => 'auth', 'prefix' => 'freelancer'], function () {
     Route::post('/update-offer/{task_id}/{task_offer_id}', [FreelanceController::class, 'updateOffer']);
     Route::get('/my-offers', [FreelanceController::class, 'myOffers']);
     Route::get('/single-offer/{task_offer_id}', [FreelanceController::class, 'singleOffer']);
-
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'payment'], function () {
     Route::get('/stripe/create-account', [StripeController::class, 'createStripeCustomConnectedAccount']);
     Route::get('/stripe/reauth', [StripeController::class, 'reauth'])->name('stripe.reauth');
     Route::get('/stripe/onboarding-success', [StripeController::class, 'onboardingSuccess'])->name('stripe.onboarding-success');
-
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'fcm'], function () {
@@ -55,8 +51,3 @@ Route::group(['prefix' => 'chat'], function () {
     Route::post('/send-message', [MessageController::class, 'sendMessage']);
     Route::get('/history/{task_offer_id}/{selected_user_id}', [MessageController::class, 'chatHistory']);
 });
-
-
-
-
-
