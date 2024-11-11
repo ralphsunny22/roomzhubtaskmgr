@@ -34,7 +34,7 @@ class MessageController extends Controller
                     ->where('receiver_id', $selected_user_id)
                     ->where('task_offer_id', $task_offer_id);
             })
-            ->orWhere(function ($query) use ($authUserId, $selected_user_id) {
+            ->orWhere(function ($query) use ($authUserId, $task_offer_id, $selected_user_id) {
                 $query->where('sender_id', $selected_user_id)
                     ->where('receiver_id', $authUserId)
                     ->where('task_offer_id', $task_offer_id);
