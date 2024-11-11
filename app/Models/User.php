@@ -68,7 +68,7 @@ class User extends Authenticatable  implements JWTSubject
 
     public function clientTasks()
     {
-        return $this->hasMany(Task::class, 'created_by');
+        return $this->hasMany(Task::class, 'created_by')->withCount(['offers', 'messages']);
     }
 
     public function freelancerTasks()

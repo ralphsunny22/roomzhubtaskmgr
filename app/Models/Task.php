@@ -39,7 +39,7 @@ class Task extends Model
     // Accessor to return the related user or their name, for example
     public function getCreatorAttribute()
     {
-        $owner = User::where('id', $this->created_by)->select('id', 'name')->first();
+        $owner = User::where('id', $this->created_by)->select('id', 'name', 'profile_picture')->first();
         return $owner;
     }
 
@@ -52,6 +52,11 @@ class Task extends Model
     public function offers()
     {
         return $this->hasMany(TaskOffer::class, 'task_id');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'task_id');
     }
 
 }
