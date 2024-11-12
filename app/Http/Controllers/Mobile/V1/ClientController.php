@@ -244,8 +244,8 @@ class ClientController extends Controller
         $perPage = 30; // Adjust perPage value as needed
         $user = Auth::user();
         $taskOffers = $task_id ?
-        $user->clientTaskOffers()->where('task_id', $task_id)->orderBy('id', 'desc')->paginate($perPage) :
-        $user->clientTaskOffers()->orderBy('id', 'desc')->paginate($perPage);
+        $user->clientTaskOffers()->with('freelancer')->where('task_id', $task_id)->orderBy('id', 'desc')->paginate($perPage) :
+        $user->clientTaskOffers()->with('freelancer')->orderBy('id', 'desc')->paginate($perPage);
 
         return response()->json([
             'success' => true,
