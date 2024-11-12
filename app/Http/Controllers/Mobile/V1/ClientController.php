@@ -112,11 +112,11 @@ class ClientController extends Controller
         try {
             $user = Auth::user();
 
-            $task = Task::findOrFail($id);
+            $task = Task::with('freelancer')->findOrFail($id);
             if ($task->createdBy->id == $user->id) {
                 $task['offers'] = $task->offers;
                 return response()->json([
-                    'success' => true,
+                    'success' => false,
                     'message' => $task,
                 ]);
             } else {

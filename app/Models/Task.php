@@ -51,7 +51,7 @@ class Task extends Model
 
     public function offers()
     {
-        return $this->hasMany(TaskOffer::class, 'task_id');
+        return $this->hasMany(TaskOffer::class, 'task_id')->with('freelancer');
     }
 
     public function messages()
