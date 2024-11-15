@@ -7,6 +7,7 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('social-login', [AuthController::class, 'social-login']);
+    Route::get('profile', [AuthController::class, 'profile']);
 
     ////forgot password
     // Route::post('forgot-password', 'ForgotPasswordController@sendResetLink');

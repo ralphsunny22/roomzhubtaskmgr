@@ -85,4 +85,5 @@ class User extends Authenticatable  implements JWTSubject
     {
         return $this->hasMany(TaskOffer::class, 'client_id');
     }
+
 }

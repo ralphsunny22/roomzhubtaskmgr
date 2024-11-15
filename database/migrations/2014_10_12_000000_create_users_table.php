@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('phone_number')->nullable();
             $table->boolean('is_phone_number_visible')->default(false);
             $table->longText('about')->nullable();
-            $table->longText('skills')->nullable();
+            $table->json('skills')->nullable();
 
             $table->string('current_latitude')->nullable();
             $table->string('current_longitude')->nullable();

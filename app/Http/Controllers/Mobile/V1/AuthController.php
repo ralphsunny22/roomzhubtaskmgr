@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 
 use App\Models\User;
+use App\Models\Task;
+use App\Models\Message;
 
 class AuthController extends Controller
 {
@@ -229,10 +231,71 @@ class AuthController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function profile()
     {
-        //
+        try {
+            $user = Auth::user();
+
+            $data = [
+                'user' => $user,
+                'task_posted_rating' => 0.0,
+                'task_done_rating' => 0.0,
+                'portfolio' => [],
+                'skills' => $user->skills,
+                'task_posted_reviews' => [],
+                'task_done_reviews' => [],
+            ];
+
+            // Fetch completed tasks created by or assigned to the user
+            $data['portfolio'] = Task::where('status', 'completed')
+                ->where(function ($query) use ($user) {
+                    $query->where('created_by', $user->id)
+                        ->orWhere('freelancer_id', $user->id);
+                })
+                ->get();
+
+            // Fetch messages with task relationships
+            $messages = Message::where('sender_id', $user->id)
+                ->orWhere('receiver_id', $user->id)
+                ->with('task') // Assuming a `task` relationship in the `Message` model
+                ->get();
+
+            $taskPostedReviews = [];
+            $taskDoneReviews = [];
+
+            foreach ($messages as $msg) {
+                if ($msg->task && $msg->task->status === 'completed') {
+                    if ($msg->task->created_by === $user->id) {
+                        $taskPostedReviews[] = [
+                            'task' => $msg->task,
+                            'message' => $msg,
+                        ];
+                    }
+
+                    if ($msg->task->freelancer_id === $user->id) {
+                        $taskDoneReviews[] = [
+                            'task' => $msg->task,
+                            'message' => $msg,
+                        ];
+                    }
+                }
+            }
+
+            $data['task_posted_reviews'] = $taskPostedReviews;
+            $data['task_done_reviews'] = $taskDoneReviews;
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
+
 
     /**
      * Show the form for editing the specified resource.
