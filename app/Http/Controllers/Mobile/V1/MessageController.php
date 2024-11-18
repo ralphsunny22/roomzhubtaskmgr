@@ -57,6 +57,7 @@ class MessageController extends Controller
 
     }
 
+    //
     public function sendMessage(Request $request)
     {
         $request->validate([
@@ -112,6 +113,18 @@ class MessageController extends Controller
                             'body' => (string) $message->message,
                             // 'sound' => 'notification.wav', // Specify the sound file name
                         ],
+                        // "android" => [
+                        //     "notification" => [
+                        //         "channelId" => '6ammart',
+                        //     ]
+                        // ],
+                        // "apns" => [
+                        //     "payload" => [
+                        //         "aps" => [
+                        //             "sound" => "notification.wav"
+                        //         ]
+                        //     ]
+                        // ]
                     ],
                 ];
 

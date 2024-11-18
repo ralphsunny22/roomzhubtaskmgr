@@ -55,3 +55,10 @@ Route::group(['prefix' => 'chat'], function () {
     Route::post('/send-message', [MessageController::class, 'sendMessage']);
     Route::get('/history/{task_offer_id}/{selected_user_id}', [MessageController::class, 'chatHistory']);
 });
+
+//wallet
+Route::group(['middleware' => 'auth', 'prefix' => 'wallet'], function () {
+    Route::get('/balance', [WalletController::class, 'getBalance']);
+    Route::post('/add-earning', [WalletController::class, 'addEarning']);
+    Route::post('/withdraw', [WalletController::class, 'withdraw']);
+});
