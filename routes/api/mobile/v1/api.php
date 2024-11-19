@@ -7,7 +7,7 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('social-login', [AuthController::class, 'social-login']);
-    Route::get('profile', [AuthController::class, 'profile']);
+    Route::get('profile/{selected_user_id?}', [AuthController::class, 'profile']);
 
     ////forgot password
     // Route::post('forgot-password', 'ForgotPasswordController@sendResetLink');
@@ -61,4 +61,5 @@ Route::group(['middleware' => 'auth', 'prefix' => 'wallet'], function () {
     Route::get('/balance', [WalletController::class, 'getBalance']);
     Route::post('/add-earning', [WalletController::class, 'addEarning']);
     Route::post('/withdraw', [WalletController::class, 'withdraw']);
+    Route::get('/transactions', [WalletController::class, 'getTransactions']);
 });

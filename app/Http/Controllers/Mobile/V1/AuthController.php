@@ -231,10 +231,10 @@ class AuthController extends Controller
     /**
      * Display the specified resource.
      */
-    public function profile()
+    public function profile($selected_user_id="")
     {
         try {
-            $user = Auth::user();
+            $user = $selected_user_id ? User::findOrFail($selected_user_id) : Auth::user();
 
             $data = [
                 'user' => $user,

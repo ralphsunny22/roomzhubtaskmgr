@@ -57,4 +57,5 @@ Route::group(['middleware' => 'auth', 'prefix' => 'wallet'], function () {
     Route::get('/balance', [WalletController::class, 'getBalance']);
     Route::post('/add-earning', [WalletController::class, 'addEarning']);
     Route::post('/withdraw', [WalletController::class, 'withdraw']);
+    Route::get('/transactions', [WalletController::class, 'getTransactions']);
 });

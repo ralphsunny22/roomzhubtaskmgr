@@ -59,10 +59,14 @@ return new class extends Migration
             $table->datetime('accepted_at')->nullable(); //when client accepted and paid
             $table->datetime('started_at')->nullable(); //when freelancer started task
             $table->datetime('completed_at')->nullable(); //when freelancer completed task
-            $table->datetime('abandoned_at')->nullable(); ////incase, when freelancer abandoned task
+            $table->datetime('freelancer_cancelled_at')->nullable();
+            $table->datetime('client_cancelled_at')->nullable();
+            $table->datetime('freelancer_abandoned_at')->nullable(); ////if client cancelled becos freelancer abandoned
+            $table->datetime('client_abandoned_at')->nullable(); ////if freelancer cancelled becos client abandoned
 
-            $table->string('status');
-            //pending, accepted(client has paid), started(freelancer has started task), incompleted(task is started but not completed), abandoned, completed(task is done)
+
+            $table->string('status'); //pending, accepted, started, cancelled, abandoned, completed
+            //pending, accepted(client has paid), started(freelancer has started task), incompleted(task is started but not completed), cancelled(if done by client) abandoned, completed(task is done)
 
             $table->timestamps();
         });
