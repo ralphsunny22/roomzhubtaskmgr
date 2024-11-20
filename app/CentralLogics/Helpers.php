@@ -6,6 +6,51 @@ use Illuminate\Support\Facades\Http;
 
 class Helpers
 {
+    /**
+     * Encrypt data
+     *
+     * @param string $text
+     * @param string $secretKey
+     * @return array
+     */
+    public static function encryptData($text, $secretKey) {
+        $algorithm = 'aes-256-cbc';
+
+        // Ensure the secret key is a valid length for the algorithm
+        $key = hash('sha256', $secretKey, true); // Hash the key to get 256-bit key
+        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($algorithm)); // Generate IV
+
+        // Encrypt the text
+        $encryptedText = openssl_encrypt($text, $algorithm, $key, OPENSSL_RAW_DATA, $iv);
+
+        return [
+            'iv' => bin2hex($iv), // Convert IV to hex for safe transport
+            'data' => bin2hex($encryptedText) // Convert encrypted data to hex
+        ];
+    }
+
+    public static function decryptData($hash, $secretKey) {
+        try {
+            $algorithm = 'aes-256-cbc';
+
+            $key = hash('sha256', $secretKey, true); // Hash the key to get 256-bit key
+            $iv = hex2bin($hash['iv']); // Convert IV back to binary
+            $encryptedText = hex2bin($hash['data']); // Convert encrypted data back to binary
+
+            $decryptedText = openssl_decrypt($encryptedText, $algorithm, $key, OPENSSL_RAW_DATA, $iv);
+
+            // If decryption fails, $decryptedText will be false
+            if ($decryptedText === false) {
+                throw new \Exception('Decryption failed. Data may have been tampered with.');
+            }
+
+            return $decryptedText;
+        } catch (\Exception $e) {
+            // Log or handle the error as needed
+            return false; // Return false to indicate decryption failure
+        }
+    }
+
     public static function error_processor($validator)
     {
         $err_keeper = [];
@@ -153,31 +198,6 @@ class Helpers
             'assertion' => $jwt,
         ]);
         return $response->json('access_token');
-    }
-
-    ///////////////////////////////////////////////////////////
-
-    function encryptData($text, $secretKey) {
-        $algorithm = 'aes-256-cbc';
-        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($algorithm)); // Generate a random IV
-
-        $encryptedText = openssl_encrypt($text, $algorithm, hex2bin($secretKey), OPENSSL_RAW_DATA, $iv);
-
-        return [
-            'iv' => bin2hex($iv),
-            'data' => bin2hex($encryptedText)
-        ];
-    }
-
-    function decryptData($hash, $secretKey) {
-        $algorithm = 'aes-256-cbc';
-
-        $iv = hex2bin($hash['iv']); // Convert IV back to binary
-        $encryptedText = hex2bin($hash['data']); // Convert data back to binary
-
-        $decryptedText = openssl_decrypt($encryptedText, $algorithm, hex2bin($secretKey), OPENSSL_RAW_DATA, $iv);
-
-        return $decryptedText;
     }
 
     //to use the decryptData

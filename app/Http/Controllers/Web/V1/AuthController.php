@@ -17,7 +17,7 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register','socialLogin']]);
+        $this->middleware('auth:api', ['except' => ['login','register','socialLogin', 'crossPlatformCheck']]);
     }
 
     public function socialLogin(Request $request){
@@ -225,12 +225,74 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function crossPlatformCheck($ivData="", $mData="")
     {
-        //
+        try {
+            if ($ivData && $mData) {
+                // $encryptedData = Session::get('encryptedData');
+                $encryptedData = [
+                    "iv" => $ivData,
+                    "data" => $mData
+                ];
+                $secretKey = env('LOGIN_SECRET');
+
+                $decryptedData = Helpers::decryptData($encryptedData, $secretKey);
+
+                if ($decryptedData) {
+                    $decodedData = json_decode($decryptedData, true);
+                    $name = $decodedData['name'];
+                    $email = $decodedData['email'];
+                    $password = $decodedData['password'];
+
+                    $user = User::where('email', $email)->first();
+                    if ($user) {
+                        $user->name = $name;
+                        $user->email = $email;
+                        $user->password = Hash::make($password);
+                        $user->save();
+                        $token = Auth::login($user);
+                        return response()->json([
+                            'success' => true,
+                            'user' => $user,
+                            'authorisation' => [
+                                'token' => $token,
+                                'type' => 'bearer',
+                            ]
+                        ],200);
+                    } else {
+                        $user = new User();
+                        $user->name = $name;
+                        $user->email = $email;
+                        $user->password = Hash::make($password);
+                        $user->save();
+                        $token = Auth::login($user);
+                        return response()->json([
+                            'success' => true,
+                            'user' => $user,
+                            'authorisation' => [
+                                'token' => $token,
+                                'type' => 'bearer',
+                            ]
+                        ],200);
+                    }
+                }
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Something went wrong',
+                ],200);
+
+            }
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid procedure',
+            ],200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ],400);
+        }
+
     }
 
     /**

@@ -6,7 +6,8 @@ use App\CentralLogics\Helpers;
 Route::group(['prefix' => 'auth'], function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
-    Route::post('social-login', [AuthController::class, 'social-login']);
+    Route::post('social-login', [AuthController::class, 'socialLogin']);
+    Route::get('cross-platform-check/{ivData}/{mData}', [AuthController::class, 'crossPlatformCheck']);
     Route::get('profile/{selected_user_id?}', [AuthController::class, 'profile']);
 
     ////forgot password
