@@ -193,7 +193,7 @@ class AuthController extends Controller
 
         //multiplatform encryption
         $data = [
-            'name' => $request->name,
+            'name' => $savedUser->name,
             'email' => $request->email,
             'password' => $request->password,
         ];

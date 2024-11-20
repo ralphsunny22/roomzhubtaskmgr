@@ -137,8 +137,20 @@ class AuthController extends Controller
         //     //throw $th;
         // }
 
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password,
+        ];
+
+        $secretKey = env('LOGIN_SECRET'); // Make sure this is set in the .env file
+
+        // Serialize data to a JSON string
+        $encryptedData = Helpers::encryptData(json_encode($data), $secretKey);
+
         return response()->json([
             'success' => true,
+            'encryptedData' => $encryptedData,
             'message' => 'User created successfully',
             'user' => $user,
             'authorisation' => [
@@ -196,7 +208,7 @@ class AuthController extends Controller
 
         //multiplatform encryption
         $data = [
-            'name' => $request->name,
+            'name' => $savedUser->name,
             'email' => $request->email,
             'password' => $request->password,
         ];
