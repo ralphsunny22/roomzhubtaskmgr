@@ -88,6 +88,12 @@ class ClientController extends Controller
 
             $task->save();
 
+            //make user a client
+            if(!$user->is_client){
+                $user->is_client = true;
+                $user->save();
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Task Created Successfully',

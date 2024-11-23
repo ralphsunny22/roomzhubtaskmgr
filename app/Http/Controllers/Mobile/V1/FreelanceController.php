@@ -55,6 +55,12 @@ class FreelanceController extends Controller
 
             $taskOffer->save();
 
+            //make user a freelancer
+            if(!$user->is_freelancer){
+                $user->is_freelancer = true;
+                $user->save();
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Offer Made Successfully',
