@@ -434,7 +434,7 @@ class ClientController extends Controller
                     'message' => 'Unauthorized request',
                 ]);
             }
-
+//
             if ($status=="pending") {
                 $task->freelancer_id = null;
                 $task->status = 'pending';
