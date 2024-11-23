@@ -421,6 +421,60 @@ class ClientController extends Controller
 
     }
 
+    public function updateTaskStatus(string $task_id, $status)
+    {
+        try{
+            $task = Task::findOrFail($task_id);
+
+            //check ownership
+            $user = Auth::user();
+            if($task->created_by !== $user->id){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized request',
+                ]);
+            }
+
+            if ($status=="pending") {
+                $task->freelancer_id = null;
+                $task->status = 'pending';
+            }
+            if ($status=="accepted") {
+                $task->accepted_at = now();
+                $task->status = 'accepted';
+            }
+            if ($status=="started") {
+                $task->client_started_at = now();
+                $task->status = 'started';
+            }
+            if ($status=="completed") {
+                $task->client_completed_at = now();
+                $task->status = 'completed';
+            }
+            if ($status=="cancelled") {
+                $task->client_cancelled_at = now();
+                $task->status = 'cancelled';
+            }
+            if ($status=="abandoned") {
+                $task->freelancer_abandoned_at = now(); //if freelancer abandoned the task
+                $task->status = 'abandoned';
+            }
+            $task->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Task Status Updated Successfully',
+                'data' => $task,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+    }
+
     public function destroy(string $id)
     {
         //

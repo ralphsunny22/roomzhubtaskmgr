@@ -149,12 +149,50 @@ class FreelanceController extends Controller
 
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function updateTaskStatus(string $task_id, $status)
     {
-        //
+        try{
+            $task = Task::findOrFail($task_id);
+
+            //check ownership
+            $user = Auth::user();
+            if($task->created_by !== $user->id){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized request',
+                ]);
+            }
+
+            if ($status=="started") {
+                $task->freelancer_started_at = now();
+                $task->status = 'started';
+            }
+            if ($status=="completed") {
+                $task->freelancer_completed_at = now();
+                $task->status = 'completed';
+            }
+            if ($status=="cancelled") {
+                $task->freelancer_cancelled_at = now();
+                $task->status = 'cancelled';
+            }
+            if ($status=="abandoned") {
+                $task->client_abandoned_at = now(); //if client abandoned the task
+                $task->status = 'abandoned';
+            }
+            $task->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Task Status Updated Successfully',
+                'data' => $task,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
     }
 
     /**

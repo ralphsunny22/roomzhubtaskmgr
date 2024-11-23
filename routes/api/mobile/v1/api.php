@@ -31,6 +31,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'client'], function () {
     Route::post('/accept-offer/{task_offer_id}', [ClientController::class, 'acceptOffer']);
     Route::post('/confirm-payment', [ClientController::class, 'confirmPayment']);
 
+    Route::get('/update-task-status/{task_id}/{status}', [ClientController::class, 'updateTaskStatus']);
+
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'freelancer'], function () {
@@ -38,6 +40,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'freelancer'], function () {
     Route::post('/update-offer/{task_id}/{task_offer_id}', [FreelanceController::class, 'updateOffer']);
     Route::get('/my-offers', [FreelanceController::class, 'myOffers']);
     Route::get('/single-offer/{task_offer_id}', [FreelanceController::class, 'singleOffer']);
+
+    Route::get('/update-task-status/{task_id}/{status}', [FreelanceController::class, 'updateTaskStatus']);
 
 });
 
