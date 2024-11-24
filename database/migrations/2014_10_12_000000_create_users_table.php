@@ -17,8 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->longText('auto_login_token')->nullable();
+
             $table->string('profile_picture')->nullable();
             $table->longText('fcm_device_token')->nullable();
+
             $table->rememberToken();
             $table->longText('user_remember_token')->nullable(); //will be used to check credentials while navigating diff apps/sites from roomzhub
             $table->string('signin_type')->default('email');
@@ -37,6 +40,8 @@ return new class extends Migration
             $table->string('current_state')->nullable();
             $table->string('current_country')->nullable();
             $table->string('current_address')->nullable();
+
+            $table->string('status')->default('pending'); //approved, suspended
 
             $table->timestamps();
         });

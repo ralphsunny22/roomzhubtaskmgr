@@ -7,7 +7,8 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('social-login', [AuthController::class, 'socialLogin']);
-    Route::get('cross-platform-check/{ivData}/{mData}', [AuthController::class, 'crossPlatformCheck']);
+    Route::get('logout', [AuthController::class, 'logout']);
+    Route::get('/auto-login', [AuthController::class, 'handleAutoLogin']);
 
     ////forgot password
     // Route::post('forgot-password', 'ForgotPasswordController@sendResetLink');

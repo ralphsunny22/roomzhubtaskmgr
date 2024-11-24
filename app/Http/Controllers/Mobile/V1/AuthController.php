@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\CentralLogics\Helpers;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
+
+use Illuminate\Support\Facades\Auth;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 use App\Models\User;
 use App\Models\Task;
@@ -19,7 +22,7 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register','socialLogin', 'crossPlatformCheck']]);
+        $this->middleware('auth:api', ['except' => ['login','register','socialLogin', 'handleAutoLogin']]);
     }
 
     //
@@ -121,13 +124,18 @@ class AuthController extends Controller
             return response()->json(['status' => false, 'errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'signin_type' => !empty($request->signin_type) ? $request->signin_type : 'email',
-            'profile_picture' => !empty($request->profile_picture) ? $request->profile_picture : null,
-            'password' => Hash::make($request->password),
-        ]);
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->signin_type = !empty($request->signin_type) ? $request->signin_type : 'email';
+        $profile_picture = !empty($request->profile_picture) ? $request->profile_picture : null;
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        $auto_login_token = Helpers::generateJWT($user);
+
+        $user->auto_login_token = $auto_login_token;
+        $user->save();
 
         $token = Auth::login($user);
 
@@ -204,23 +212,12 @@ class AuthController extends Controller
         $user->signin_type = 'email';
 
         $user->fcm_device_token = isset($request->fcm_device_token) ? $request->fcm_device_token : $user->fcm_device_token;
+        $auto_login_token = Helpers::generateJWT($user);
+        $user->auto_login_token = $auto_login_token;
         $user->save();
-
-        //multiplatform encryption
-        $data = [
-            'name' => $savedUser->name,
-            'email' => $request->email,
-            'password' => $request->password,
-        ];
-
-        $secretKey = env('LOGIN_SECRET'); // Make sure this is set in the .env file
-
-        // Serialize data to a JSON string
-        $encryptedData = Helpers::encryptData(json_encode($data), $secretKey);
 
         return response()->json([
             'success' => true,
-            'encryptedData' => $encryptedData,
             'user' => $user,
             'authorisation' => [
                 'token' => $token,
@@ -322,74 +319,54 @@ class AuthController extends Controller
     }
 
 
-    public function crossPlatformCheck($ivData="", $mData="")
+    public function handleAutoLogin(Request $request)
     {
         try {
-            if ($ivData && $mData) {
-                // $encryptedData = Session::get('encryptedData');
-                $encryptedData = [
-                    "iv" => $ivData,
-                    "data" => $mData
-                ];
-                $secretKey = env('LOGIN_SECRET');
+            // Get the token from the query parameter
+            $auto_login_token = (string) $request->query('auto_login_token');
 
-                $decryptedData = Helpers::decryptData($encryptedData, $secretKey);
+            // Decode the token
+            $payload = JWT::decode($auto_login_token, new Key(env('LOGIN_SECRET'), 'HS256'));
 
-                if ($decryptedData) {
-                    $decodedData = json_decode($decryptedData, true);
-                    $name = $decodedData['name'];
-                    $email = $decodedData['email'];
-                    $password = $decodedData['password'];
-
-                    $user = User::where('email', $email)->first();
-                    if ($user) {
-                        $user->name = $name;
-                        $user->email = $email;
-                        $user->password = Hash::make($password);
-                        $user->save();
-                        $token = Auth::login($user);
-                        return response()->json([
-                            'success' => true,
-                            'user' => $user,
-                            'authorisation' => [
-                                'token' => $token,
-                                'type' => 'bearer',
-                            ]
-                        ],200);
-                    } else {
-                        $user = new User();
-                        $user->name = $name;
-                        $user->email = $email;
-                        $user->password = Hash::make($password);
-                        $user->save();
-                        $token = Auth::login($user);
-                        return response()->json([
-                            'success' => true,
-                            'user' => $user,
-                            'authorisation' => [
-                                'token' => $token,
-                                'type' => 'bearer',
-                            ]
-                        ],200);
-                    }
-                }
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Something went wrong',
-                ],200);
-
+            // Validate timestamp
+            if (now()->timestamp - $payload->timestamp > 28000000) { // 8 mths expiration
+                return response('Token expired', 403);
             }
+
+            $user = User::where('email', $payload->email)->first();
+            if ($user) {
+                $user->name = $payload->name;
+                $user->email = $payload->email;
+                $user->password = $payload->password;
+                $user->auto_login_token = $auto_login_token;
+                $user->save();
+            } else {
+                $user = new User();
+                $user->name = $payload->name;
+                $user->email = $payload->email;
+                $user->password = $payload->password;
+                $user->auto_login_token = $auto_login_token;
+                $user->save();
+            }
+
+            // Log the user in
+            $token = Auth::login($user);
+
             return response()->json([
-                'success' => false,
-                'message' => 'Invalid procedure',
+                'success' => true,
+                'user' => User::find($user->id),
+                'authorisation' => [
+                    'token' => $token,
+                    'type' => 'bearer',
+                ]
             ],200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
-            ],400);
-        }
+                'message' => $e->getMessage(),
 
+            ],500);
+        }
     }
 
     /**

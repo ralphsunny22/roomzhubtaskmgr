@@ -39,7 +39,7 @@ class Task extends Model
     // Accessor to return the related user or their name, for example
     public function getCreatorAttribute()
     {
-        $owner = User::where('id', $this->created_by)->select('id', 'name', 'profile_picture')->first();
+        $owner = User::where('id', $this->created_by)->select('id', 'name', 'email', 'phone_number', 'profile_picture')->first();
         return $owner;
     }
 
@@ -57,6 +57,24 @@ class Task extends Model
     public function messages()
     {
         return $this->hasMany(Message::class, 'task_id');
+    }
+
+    public function getBgColor($status) {
+
+        $allStatus = [
+            ['name'=>'pending', 'bgColor'=>'primary'],
+            ['name'=>'started', 'bgColor'=>'info'],
+            ['name'=>'completed', 'bgColor'=>'success'],
+            ['name'=>'cancelled', 'bgColor'=>'dark'],
+            ['name'=>'abandoned', 'bgColor'=>'danger'],
+        ];
+
+        foreach ($allStatus as $statusItem) {
+            if ($statusItem['name'] === $status) {
+                return $statusItem['bgColor'];
+            }
+        }
+        return null; // Return null or a default value if the status is not found
     }
 
 }

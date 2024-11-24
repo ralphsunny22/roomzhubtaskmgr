@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id'); // User reference
+            $table->unsignedBigInteger('user_id'); // User reference, freelancer recieving the money
             $table->unsignedBigInteger('task_id')->nullable(); //used for earnings
             $table->unsignedBigInteger('task_offer_id')->nullable(); //used for earnings
             $table->enum('type', ['earning', 'payout']); // Transaction type
             $table->decimal('amount', 10, 2); // Transaction amount
             $table->text('description')->nullable(); // Optional description
+
+            $table->string('status')->default('unpaid'); //paid(means freelancer has received money in their bank acct)
 
             $table->timestamps();
         });

@@ -6,14 +6,14 @@
         <a href="{{route('adminDashboard')}}" class="logo-light">
             {{-- <img src="{{asset('/assets/images/logo-light.png')}}" alt="logo" class="logo-lg">
             <img src="assets/images/logo-sm.png" alt="small logo" class="logo-sm"> --}}
-            <h3>MARKETPLACE</h3>
+            <h3>TASK MANAGER</h3>
         </a>
 
         <!-- Brand Logo Dark -->
         <a href="{{route('adminDashboard')}}" class="logo-dark">
             {{-- <img src="{{asset('/assets/images/logo-dark.png')}}" alt="dark logo" class="logo-lg">
             <img src="assets/images/logo-sm.png" alt="small logo" class="logo-sm"> --}}
-            <h3>MARKETPLACE</h3>
+            <h3>TASK MANAGER</h3>
         </a>
     </div>
 
@@ -68,29 +68,34 @@
                 </a>
             </li>
 
-            <li class="menu-title">Products</li>
+            <li class="menu-title">Users</li>
 
             <li class="menu-item">
-                <a href="#productListings" data-bs-toggle="collapse" class="menu-link">
+                <a href="#userListings" data-bs-toggle="collapse" class="menu-link">
                     <span class="menu-icon"><i class="fa fa-home"></i></span>
-                    <span class="menu-text"> Product Lists </span>
+                    <span class="menu-text"> Users Lists </span>
                     <span class="menu-arrow ms-auto"><i class="fa fa-angle-right"></i></span>
                 </a>
-                <div class="collapse" id="productListings">
+                <div class="collapse" id="userListings">
                     <ul class="sub-menu">
                         <li class="menu-item">
-                            <a href="{{route('allProduct')}}" class="menu-link">
-                                <span class="menu-text">All Products</span>
+                            <a href="{{route('allUser')}}" class="menu-link">
+                                <span class="menu-text">All Users</span>
                             </a>
                         </li>
                         <li class="menu-item">
-                            <a href="{{route('allProduct', 'pending')}}" class="menu-link">
-                                <span class="menu-text">Pending Products</span>
+                            <a href="{{route('allUser', 'pending')}}" class="menu-link">
+                                <span class="menu-text">Pending Users</span>
                             </a>
                         </li>
                         <li class="menu-item">
-                            <a href="{{route('allProduct', 'featured')}}" class="menu-link">
-                                <span class="menu-text">Featured Products</span>
+                            <a href="{{route('allUser', 'approved')}}" class="menu-link">
+                                <span class="menu-text">Approved Users</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{route('allUser', 'suspended')}}" class="menu-link">
+                                <span class="menu-text">Suspended Users</span>
                             </a>
                         </li>
 
@@ -98,37 +103,34 @@
                 </div>
             </li>
 
-            <li class="menu-title">Order Management</li>
+            <li class="menu-title">Clients</li>
 
             <li class="menu-item">
-                <a href="#orderListings" data-bs-toggle="collapse" class="menu-link">
+                <a href="#clientListings" data-bs-toggle="collapse" class="menu-link">
                     <span class="menu-icon"><i class="fa fa-home"></i></span>
-                    <span class="menu-text"> Order Lists </span>
+                    <span class="menu-text"> Client Lists </span>
                     <span class="menu-arrow ms-auto"><i class="fa fa-angle-right"></i></span>
                 </a>
-                <div class="collapse" id="orderListings">
+                <div class="collapse" id="clientListings">
                     <ul class="sub-menu">
                         <li class="menu-item">
-                            <a href="{{route('allOrder')}}" class="menu-link">
-                                <span class="menu-text">All Orders</span>
+                            <a href="{{route('allClient')}}" class="menu-link">
+                                <span class="menu-text">All Clients</span>
                             </a>
                         </li>
-
                         <li class="menu-item">
-                            <a href="{{route('allOrder', 'pending')}}" class="menu-link">
-                                <span class="menu-text">Pending Orders</span>
+                            <a href="{{route('allClient', 'pending')}}" class="menu-link">
+                                <span class="menu-text">Pending Clients</span>
                             </a>
                         </li>
-
                         <li class="menu-item">
-                            <a href="{{route('allOrder', 'delivered')}}" class="menu-link">
-                                <span class="menu-text">Delivered Orders</span>
+                            <a href="{{route('allClient', 'approved')}}" class="menu-link">
+                                <span class="menu-text">Approved Clients</span>
                             </a>
                         </li>
-
                         <li class="menu-item">
-                            <a href="{{route('allOrder', 'cancelled')}}" class="menu-link">
-                                <span class="menu-text">Cancelled Orders</span>
+                            <a href="{{route('allClient', 'suspended')}}" class="menu-link">
+                                <span class="menu-text">Suspended Clients</span>
                             </a>
                         </li>
 
@@ -136,19 +138,34 @@
                 </div>
             </li>
 
-            <li class="menu-title">Customer MANAGEMENT</li>
+            <li class="menu-title">Freelancers</li>
 
             <li class="menu-item">
-                <a href="#userMgt" data-bs-toggle="collapse" class="menu-link">
-                    <span class="menu-icon"><i class="fa fa-users"></i></span>
-                    <span class="menu-text">Users </span>
+                <a href="#freelancerListings" data-bs-toggle="collapse" class="menu-link">
+                    <span class="menu-icon"><i class="fa fa-home"></i></span>
+                    <span class="menu-text"> Freelancer Lists </span>
                     <span class="menu-arrow ms-auto"><i class="fa fa-angle-right"></i></span>
                 </a>
-                <div class="collapse" id="userMgt">
+                <div class="collapse" id="freelancerListings">
                     <ul class="sub-menu">
                         <li class="menu-item">
-                            <a href="{{ route('allCustomer') }}" class="menu-link">
-                                <span class="menu-text">All Customers</span>
+                            <a href="{{route('allFreelancer')}}" class="menu-link">
+                                <span class="menu-text">All Freelancers</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{route('allFreelancer', 'pending')}}" class="menu-link">
+                                <span class="menu-text">Pending Freelancers</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{route('allFreelancer', 'approved')}}" class="menu-link">
+                                <span class="menu-text">Approved Freelancers</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{route('allFreelancer', 'suspended')}}" class="menu-link">
+                                <span class="menu-text">Suspended Freelancers</span>
                             </a>
                         </li>
 
@@ -156,29 +173,44 @@
                 </div>
             </li>
 
-            <li class="menu-title">Vendor MANAGEMENT</li>
+            <li class="menu-title">Tasks</li>
 
             <li class="menu-item">
-                <a href="#vendorMgt" data-bs-toggle="collapse" class="menu-link">
-                    <span class="menu-icon"><i class="fa fa-users"></i></span>
-                    <span class="menu-text">Vendors </span>
+                <a href="#taskListings" data-bs-toggle="collapse" class="menu-link">
+                    <span class="menu-icon"><i class="fa fa-home"></i></span>
+                    <span class="menu-text"> Task Lists </span>
                     <span class="menu-arrow ms-auto"><i class="fa fa-angle-right"></i></span>
                 </a>
-                <div class="collapse" id="vendorMgt">
+                <div class="collapse" id="taskListings">
                     <ul class="sub-menu">
                         <li class="menu-item">
-                            <a href="{{ route('allVendor') }}" class="menu-link">
-                                <span class="menu-text">All Vendors</span>
+                            <a href="{{route('allTask')}}" class="menu-link">
+                                <span class="menu-text">All Tasks</span>
                             </a>
                         </li>
                         <li class="menu-item">
-                            <a href="{{ route('allVendor', 'confirmed') }}" class="menu-link">
-                                <span class="menu-text">Approved Vendors</span>
+                            <a href="{{route('allTask', 'pending')}}" class="menu-link">
+                                <span class="menu-text">Pending Tasks</span>
                             </a>
                         </li>
                         <li class="menu-item">
-                            <a href="{{ route('allVendor', 'suspended') }}" class="menu-link">
-                                <span class="menu-text">Suspended Vendors</span>
+                            <a href="{{route('allTask', 'started')}}" class="menu-link">
+                                <span class="menu-text">Started Tasks</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{route('allTask', 'completed')}}" class="menu-link">
+                                <span class="menu-text">Completed Tasks</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{route('allTask', 'cancelled')}}" class="menu-link">
+                                <span class="menu-text">Cancelled Tasks</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{route('allTask', 'abandoned')}}" class="menu-link">
+                                <span class="menu-text">Abandoned Tasks</span>
                             </a>
                         </li>
 
@@ -186,9 +218,39 @@
                 </div>
             </li>
 
-            <li class="menu-title">Payments</li>
+            <li class="menu-title">Transactions</li>
 
             <li class="menu-item">
+                <a href="#transactionListings" data-bs-toggle="collapse" class="menu-link">
+                    <span class="menu-icon"><i class="fa fa-home"></i></span>
+                    <span class="menu-text"> Transaction Lists </span>
+                    <span class="menu-arrow ms-auto"><i class="fa fa-angle-right"></i></span>
+                </a>
+                <div class="collapse" id="transactionListings">
+                    <ul class="sub-menu">
+                        <li class="menu-item">
+                            <a href="{{route('allTransaction')}}" class="menu-link">
+                                <span class="menu-text">All Transactions</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{route('allEarning')}}" class="menu-link">
+                                <span class="menu-text">Earnings Transactions</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{route('allPayout')}}" class="menu-link">
+                                <span class="menu-text">Payouts Transactions</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </li>
+
+            <li class="menu-title d-none">Payments</li>
+
+            <li class="menu-item d-none">
                 <a href="#allPayment" data-bs-toggle="collapse" class="menu-link">
                     <span class="menu-icon"><i class="fa fa-money"></i></span>
                     <span class="menu-text">All Payments </span>
@@ -197,7 +259,7 @@
                 <div class="collapse" id="allPayment">
                     <ul class="sub-menu">
                         <li class="menu-item">
-                            <a href="{{ route('allPayment') }}" class="menu-link">
+                            <a href="/" class="menu-link">
                                 <span class="menu-text">All Payments</span>
                             </a>
                         </li>

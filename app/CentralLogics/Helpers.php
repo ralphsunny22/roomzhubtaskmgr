@@ -3,9 +3,25 @@
 namespace App\CentralLogics;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class Helpers
 {
+    public static function generateJWT($user) {
+        $payload = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'password' => $user->password,
+            'timestamp' => now()->timestamp // Add a timestamp for expiration validation
+        ];
+
+        // Generate the JWT token
+        $jwt = JWT::encode($payload, env('LOGIN_SECRET'), 'HS256');
+
+        return $jwt;
+    }
     /**
      * Encrypt data
      *

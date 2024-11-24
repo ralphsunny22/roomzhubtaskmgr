@@ -23,7 +23,7 @@ class FreelanceController extends Controller
 
             $task = Task::findOrFail($task_id);
 
-            //u cannot make-offer on ur own price
+            //u cannot make-offer on ur own task
             if ($task->created_by == $user->id) {
                 return response()->json([
                     'success' => false,

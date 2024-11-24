@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\User;
-use App\Models\Product;
-use App\Models\Vendor;
-use App\Models\Order;
+use App\Models\Task;
+use App\Models\TaskOffer;
+use App\Models\Wallet;
 
 class DashboardController extends Controller
 {
@@ -18,142 +18,212 @@ class DashboardController extends Controller
     public function adminDashboard()
     {
         $users = User::count();
+        $userPending = User::where('status', 'pending')->count();
+        $userApproved = User::where('status', 'approved')->count();
+        $userSuspended = User::where('status', 'suspended')->count();
 
-        $products = Product::count();
-        $productPending = Product::where('status', 'pending')->count();
-        $productFeatured = Product::where('status', 'featured')->count();
+        $clients = User::where('is_client',true)->count();
+        $freelancers = User::where('is_freelancer',true)->count();
 
-        $vendors = Vendor::count();
-        $vendorPending = Vendor::where('status', 'pending')->count();
-        $vendorConfirmed = Vendor::where('status', 'confirmed')->count();
-        $vendorSuspended = Vendor::where('status', 'suspended')->count();
+        $tasks = Task::count();
+        $taskPending = Task::where('status', 'pending')->count();
+        $taskStarted = Task::where('status', 'started')->count();
+        $taskCompleted = Task::where('status', 'completed')->count();
+        $taskCancelled = Task::where('status', 'cancelled')->count();
+        $taskAbandoned = Task::where('status', 'abandoned')->count();
 
-        $customers = Order::distinct('created_by')->count();
+        $taskOffers = TaskOffer::count();
+        $taskOfferPending = TaskOffer::where('status', 'pending')->count();
+        $taskOfferAccepted = TaskOffer::where('status', 'accepted')->count();
+        $taskOfferDeclined = TaskOffer::where('status', 'declined')->count();
 
-        $orders = Order::count();
-        $orderPending = Order::where('status', 'pending')->count();
-        $orderDelivered = Order::where('status', 'delivered')->count();
-        $orderCancelled = Order::where('status', 'cancelled')->count();
+        $walletTransactions = Wallet::count();
+        $walletEarnings = Wallet::where('type', 'earning')->count();
+        $walletPayouts = Wallet::where('type', 'payout')->count();
 
-        return view('backend.dashboard', compact('products', 'productPending', 'productFeatured', 'users',
-        'vendors', 'vendorPending', 'vendorConfirmed', 'vendorSuspended', 'customers',
-        'orders', 'orderPending', 'orderDelivered', 'orderCancelled'
+        return view('backend.dashboard', compact('users', 'userPending', 'userApproved', 'userSuspended',
+        'clients', 'freelancers', 'tasks', 'taskPending', 'taskStarted', 'taskCompleted', 'taskCancelled', 'taskAbandoned',
+        'taskOffers', 'taskOfferPending', 'taskOfferAccepted', 'taskOfferDeclined', 'walletTransactions', 'walletEarnings', 'walletPayouts'
         ));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function allCustomer()
-    {
-        // Fetch distinct 'created_by' customers along with their relationship
-        $customers = Order::with('customer')
-            ->select('created_by') // Select only the 'created_by' column
-            ->distinct()
-            ->get();
-
-        $allStatus = [
-            ['name'=>'active', 'bgColor'=>'success'],
-            ['name'=>'inactive', 'bgColor'=>'danger'],
-        ]; //'completed', 'pending', 'draft'
-
-        return view('backend.customer.allCustomer', compact('customers', 'allStatus'));
-    }
-
-
-    public function allVendor($status="")
+    public function allUser($status="")
     {
         if ($status=="") {
-            $vendors = Vendor::with('user')->get();
+            $users = User::all();
         }
         if ($status=="pending") {
-            $vendors = Vendor::with('user')->where('status', 'pending')->get();
+            $users = User::where('status', 'pending')->get();
         }
-        if ($status=="confirmed") {
-            $vendors = Vendor::with('user')->where('status', 'confirmed')->get();
+        if ($status=="approved") {
+            $users = User::where('status', 'approved')->get();
         }
         if ($status=="suspended") {
-            $vendors = Vendor::with('user')->where('status', 'suspended')->get();
+            $users = User::where('status', 'suspended')->get();
         }
 
 
         $allStatus = [
-            ['name'=>'confirmed', 'bgColor'=>'success'],
+            ['name'=>'approved', 'bgColor'=>'success'],
             ['name'=>'pending', 'bgColor'=>'primary'],
             ['name'=>'suspended', 'bgColor'=>'danger'],
         ];
 
-        return view('backend.vendor.allVendor', compact('vendors', 'allStatus', 'status'));
+        return view('backend.user.allUser', compact('users', 'allStatus', 'status'));
     }
 
-    public function allProduct($status="")
+    public function allClient($status="")
     {
         if ($status=="") {
-            $products = Product::with(['createdBy','category'])->get();
-        } else {
-            $products = Product::with(['createdBy','category'])->where('status',$status)->get();
+            $clients = User::where('is_client',true)->get();
+        }
+        if ($status=="pending") {
+            $clients = User::where('is_client',true)->where('status', 'pending')->get();
+        }
+        if ($status=="approved") {
+            $clients = User::where('is_client',true)->where('status', 'approved')->get();
+        }
+        if ($status=="suspended") {
+            $clients = User::where('is_client',true)->where('status', 'suspended')->get();
         }
 
-
         $allStatus = [
+            ['name'=>'approved', 'bgColor'=>'success'],
             ['name'=>'pending', 'bgColor'=>'primary'],
-            ['name'=>'featured', 'bgColor'=>'success'],
+            ['name'=>'suspended', 'bgColor'=>'danger'],
         ];
 
-        return view('backend.product.allProduct', compact('products', 'allStatus', 'status'));
+        return view('backend.client.allClient', compact('clients', 'allStatus', 'status'));
     }
 
-    public function allOrder($status="")
+    public function singleClient($client_id)
+    {
+        $client = User::with(['clientTasks'])->where('id',$client_id)->first();
+
+        $allStatus = [
+            ['name'=>'approved', 'bgColor'=>'success'],
+            ['name'=>'pending', 'bgColor'=>'primary'],
+            ['name'=>'suspended', 'bgColor'=>'danger'],
+        ];
+
+        return view('backend.client.singleClient', compact('client', 'allStatus'));
+    }
+
+    public function allFreelancer($status="")
     {
         if ($status=="") {
-            $orders = Order::with(['customer','vendor'])->get();
+            $freelancers = User::where('is_freelancer',true)->get();
+        }
+        if ($status=="pending") {
+            $freelancers = User::where('is_freelancer',true)->where('status', 'pending')->get();
+        }
+        if ($status=="approved") {
+            $freelancers = User::where('is_freelancer',true)->where('status', 'approved')->get();
+        }
+        if ($status=="suspended") {
+            $freelancers = User::where('is_freelancer',true)->where('status', 'suspended')->get();
+        }
+
+        $allStatus = [
+            ['name'=>'approved', 'bgColor'=>'success'],
+            ['name'=>'pending', 'bgColor'=>'primary'],
+            ['name'=>'suspended', 'bgColor'=>'danger'],
+        ];
+
+        return view('backend.freelancer.allFreelancer', compact('freelancers', 'allStatus', 'status'));
+    }
+
+    public function singleFreelancer($freelancer_id)
+    {
+        $freelancer = User::with(['freelancerTaskOffers'])->where('id',$freelancer_id)->first();
+
+        $allStatus = [
+            ['name'=>'approved', 'bgColor'=>'success'],
+            ['name'=>'pending', 'bgColor'=>'primary'],
+            ['name'=>'suspended', 'bgColor'=>'danger'],
+        ];
+
+        return view('backend.freelancer.singleFreelancer', compact('freelancer', 'allStatus'));
+    }
+
+    public function allTask($status="")
+    {
+        if ($status=="") {
+            $tasks = Task::with(['createdBy','freelancer'])->get();
         } else {
-            $orders = Order::with(['customer','vendor'])->where('status',$status)->get();
+            $tasks = Task::with(['createdBy','freelancer'])->where('status',$status)->get();
         }
 
         $allStatus = [
             ['name'=>'pending', 'bgColor'=>'primary'],
-            ['name'=>'featured', 'bgColor'=>'success'],
+            ['name'=>'started', 'bgColor'=>'info'],
+            ['name'=>'completed', 'bgColor'=>'success'],
+            ['name'=>'cancelled', 'bgColor'=>'dark'],
+            ['name'=>'abandoned', 'bgColor'=>'danger'],
         ];
 
-        return view('backend.order.allOrder', compact('orders', 'allStatus', 'status'));
+        return view('backend.task.allTask', compact('tasks', 'allStatus', 'status'));
     }
 
-    public function orderDetail(string $order_id)
+    public function singleTask($task_id)
     {
-        $order = Order::find($order_id);
-        $status = $order->status;
-
-        $cartItems = $order->products;
-
-        // Calculate total
-        $total = 0;
-        foreach ($cartItems as $item) {
-            $total += $item['price'] * $item['quantity'];
-        }
+        $task = Task::with(['createdBy','freelancer', 'offers'])->where('id',$task_id)->first();
 
         $allStatus = [
             ['name'=>'pending', 'bgColor'=>'primary'],
-            ['name'=>'in progress', 'bgColor'=>'info'],
-            ['name'=>'delivered', 'bgColor'=>'success'],
-            ['name'=>'cancelled', 'bgColor'=>'danger'],
+            ['name'=>'started', 'bgColor'=>'info'],
+            ['name'=>'completed', 'bgColor'=>'success'],
+            ['name'=>'cancelled', 'bgColor'=>'dark'],
+            ['name'=>'abandoned', 'bgColor'=>'danger'],
         ];
-        return view('backend.order.orderDetail', compact('order', 'cartItems', 'total', 'allStatus', 'status'));
+
+        return view('backend.task.singleTask', compact('task', 'allStatus'));
     }
 
-    public function productDetail(string $product_id)
+    public function updateTaskStatus(Request $request, $task_id)
     {
-        $product = Product::with('vendor')->where('id', $product_id)->first();
-        $status = $product->status;
+        $task = Task::where('id',$task_id)->first();
+        $task->status = $request->task_status;
+        $task->save();
+
+        return back()->with('success'. 'Task Updated Successfully');
+
+    }
+
+    public function allTransaction()
+    {
+        $walletTransactions = Wallet::all();
 
         $allStatus = [
-            ['name'=>'pending', 'bgColor'=>'primary'],
-            ['name'=>'in progress', 'bgColor'=>'info'],
-            ['name'=>'delivered', 'bgColor'=>'success'],
-            ['name'=>'cancelled', 'bgColor'=>'danger'],
+            ['name'=>'paid', 'bgColor'=>'success'],
+            ['name'=>'unpaid', 'bgColor'=>'danger'],
         ];
-        $alternateImages = json_decode($product->alternate_images);
-        return view('backend.product.productDetail', compact('product', 'allStatus', 'alternateImages'));
+
+        return view('backend.wallet.allTransaction', compact('walletTransactions', 'allStatus'));
+    }
+
+    public function allEarning()
+    {
+        $walletEarnings = Wallet::where('type', 'earning')->get();
+
+        $allStatus = [
+            ['name'=>'paid', 'bgColor'=>'success'],
+            ['name'=>'unpaid', 'bgColor'=>'danger'],
+        ];
+
+        return view('backend.wallet.allEarning', compact('walletEarnings', 'allStatus'));
+    }
+
+    public function allPayout()
+    {
+        $walletPayouts = Wallet::where('type', 'payout')->get();
+
+        $allStatus = [
+            ['name'=>'paid', 'bgColor'=>'success'],
+            ['name'=>'unpaid', 'bgColor'=>'danger'],
+        ];
+
+        return view('backend.wallet.allPayout', compact('walletPayouts', 'allStatus'));
     }
 
     /**

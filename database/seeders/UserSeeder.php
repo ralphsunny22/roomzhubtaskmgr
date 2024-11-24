@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\User;
 
 class UserSeeder extends Seeder
 {
@@ -16,59 +17,50 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Sample data for the seekers table nick@email.com, client@email.com, freelancer@email.com
-        $users = [
-            [
-                'name' => 'Raphael Santos',
-                'email' => 'santosralph2022@gmail.com',
-                'is_phone_number_visible' => false,
-                'password' => Hash::make('password'),
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'name' => 'Ugo Raphael',
-                'email' => 'ralphsunny114@gmail.com',
-                'is_phone_number_visible' => false,
-                'password' => Hash::make('password'),
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'name' => 'Nick Dev',
-                'email' => 'nick@email.com',
-                'is_phone_number_visible' => false,
-                'password' => Hash::make('password'),
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'name' => 'Dreymi',
-                'email' => 'dr3ymi@gmail.com',
-                'is_phone_number_visible' => false,
-                'password' => Hash::make('Foobarbaz1!'),
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'name' => 'Test Client',
-                'email' => 'client@email.com',
-                'is_phone_number_visible' => false,
-                'password' => Hash::make('password'),
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'name' => 'Test Freelancer',
-                'email' => 'freelancer@email.com',
-                'is_phone_number_visible' => false,
-                'password' => Hash::make('password'),
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            // Add more sample data as needed
-        ];
+        $user = new User();
+        $user->name = 'Raphael Santos';
+        $user->email = 'santosralph2022@gmail.com';
+        $user->password = Hash::make('password');
+        $user->is_phone_number_visible = false;
 
-        // Insert data into the users table
-        DB::table('users')->insert($users);
+        $user->save();
+
+        $user = new User();
+        $user->name = 'Ugo Raphael';
+        $user->email = 'ralphsunny114@gmail.com';
+        $user->password = Hash::make('password');
+        $user->is_phone_number_visible = false;
+        $user->save();
+
+        $user = new User();
+        $user->name = 'Nick Dev';
+        $user->email = 'nick@email.com';
+        $user->password = Hash::make('password');
+        $user->is_phone_number_visible = false;
+        $user->save();
+
+        $user = new User();
+        $user->name = 'Dreymi';
+        $user->email = 'dr3ymi@email.com';
+        $user->password = Hash::make('password');
+        $user->is_phone_number_visible = false;
+        $user->save();
+
+        $user = new User();
+        $user->name = 'Test Freelancer';
+        $user->email = 'freelancer@email.com';
+        $user->password = Hash::make('password');
+        $user->is_phone_number_visible = false;
+        $user->save();
+
+        $user = new User();
+        $user->name = 'Test Client';
+        $user->email = 'client@email.com';
+        $user->password = Hash::make('password');
+        $user->is_phone_number_visible = false;
+        $user->save();
+
+
+
     }
 }
