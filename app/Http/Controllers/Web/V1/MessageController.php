@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\CentralLogics\Helpers;
+use Illuminate\Support\Facades\DB;
 
 use App\Services\FCMService;
 use App\Models\Message;
@@ -18,6 +19,36 @@ class MessageController extends Controller
     public function __construct(FCMService $fcmService)
     {
         $this->fcmService = $fcmService;
+    }
+
+    public function chatContacts()
+    {
+        // $users = User::select('id', 'display_name')->get();
+        $loggedInUserId = Auth::id();
+
+        try {
+            $chatUsers = DB::table('messages')
+            ->select(DB::raw('DISTINCT IF(sender_id = ' . $loggedInUserId . ', receiver_id, sender_id) AS user_id'))
+            ->where(function ($query) use ($loggedInUserId) {
+                $query->where('sender_id', $loggedInUserId)
+                    ->orWhere('receiver_id', $loggedInUserId);
+            })
+            ->get();
+
+            $userIds = $chatUsers->pluck('user_id')->toArray();
+
+            $users = User::whereIn('id', $userIds)->select('id', 'name', 'profile_picture')->get();
+
+            // $activeUserId = null;
+            // if ($user_id) {
+            //     $activeUserId = $user_id;
+            // }
+
+            return response()->json(['success'=>true, 'data'=>$users]);
+        } catch (\Exception $e) {
+            return response()->json(['success'=>false, 'message'=>'Something went wrong', 'exp'=>$e->getMessage()]);
+        }
+
     }
 
     public function chatHistory($task_offer_id, $selected_user_id)
