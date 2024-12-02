@@ -102,4 +102,43 @@ class User extends Authenticatable implements JWTSubject
         return null; // Return null or a default value if the status is not found
     }
 
+    public function getProfilePictureAttribute($value)
+    {
+        $image = $value ? $value : null;
+
+        if ($image) {
+            return asset('/storage/users/' . $image);
+        }
+        return null;
+    }
+
+    // public function getPortfolioImagesAttribute($value)
+    // {
+    //     $images = $value ? json_decode($value, true) : null;
+
+    //     if (is_array($images)) {
+    //         return array_map(function ($image) {
+    //             // return Storage::url('tasks/' . $image); // Return the full storage URL
+    //             return asset('/storage/portfolios/' . $image);
+    //         }, $images);
+    //     }
+
+    //     return [];
+    // }
+
+    public function getPortfolioImagesAttribute($value)
+    {
+        $images = $value ? json_decode($value, true) : null;
+
+        if (is_array($images)) {
+            return array_map(function ($image) {
+                // Only prepend the URL if it's not already a full URL
+                return str_starts_with($image, 'http') ? $image : asset('/storage/portfolios/' . $image);
+            }, $images);
+        }
+
+        return [];
+    }
+
+
 }

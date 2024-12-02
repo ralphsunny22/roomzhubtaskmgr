@@ -91,6 +91,17 @@ class Helpers
         return $imageName;
     }
 
+    public static function uploadUrl($path, $extension, $file, $default = null)
+    {
+        if ($file) {
+            $fileName = date('Y-m-d') . '-' . uniqid() . '.' . $extension;
+            $file->storeAs('public/' . $path, $fileName);
+            return url('storage/' . $path . $fileName); // Full URL of the uploaded file
+        }
+        return $default ? url('storage/' . $path . $default) : null;
+    }
+
+
     public static function update(string $dir, $old_image, string $format, $image)
     {
         if ($image == null) {

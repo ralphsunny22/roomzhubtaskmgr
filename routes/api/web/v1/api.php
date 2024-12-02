@@ -9,6 +9,7 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('social-login', [AuthController::class, 'socialLogin']);
     Route::get('logout', [AuthController::class, 'logout']);
     Route::get('/auto-login', [AuthController::class, 'handleAutoLogin']);
+    Route::post('/update-profile', [AuthController::class, 'updateProfile']);
 
     ////forgot password
     // Route::post('forgot-password', 'ForgotPasswordController@sendResetLink');
