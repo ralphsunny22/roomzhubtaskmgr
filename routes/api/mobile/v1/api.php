@@ -10,6 +10,7 @@ Route::group(['prefix' => 'auth'], function () {
     Route::get('/auto-login', [AuthController::class, 'handleAutoLogin']);
     Route::get('profile/{selected_user_id?}', [AuthController::class, 'profile']);
 
+    Route::post('/update-profile', [AuthController::class, 'updateProfile']);
     ////forgot password
     // Route::post('forgot-password', 'ForgotPasswordController@sendResetLink');
     // Route::post('reset-password', 'ForgotPasswordController@resetPassword');

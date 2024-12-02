@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Auth;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\User;
 use App\Models\Task;
@@ -369,12 +370,98 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function updateProfile(Request $request)
     {
-        //
+        $authUser = Auth::user();
+        $user = User::find($authUser->id);
+
+        $section = $request->section;
+
+        if ($section == 'about') {
+            $user->about = $request->about;
+            $user->save();
+        }
+
+        if ($section == 'profile_picture_and_suburb') {
+            // Handle main image upload
+            if ($request->file('profile_picture')) {
+                // Delete old image if exists
+                if ($user->profile_picture) {
+                    $img = $user->profile_picture;
+                    $pathInfo = pathinfo($img);
+                    $imageName = $pathInfo['basename'];
+                    Helpers::removeFile('users/', $imageName, 'noimage.png');
+                }
+
+                $image = $request->file('profile_picture');
+
+                // Upload new image
+                $profile_picture = Helpers::upload('users/', 'png', $image, 'noimage.png');
+                $user->profile_picture = $profile_picture;
+                $user->save();
+            }
+
+            $user->current_latitude = $request->current_latitude ?? $user->current_latitude;
+            $user->current_longitude = $request->current_longitude ?? $user->current_longitude;
+            $user->current_city = $request->current_city ?? $user->current_city;
+            $user->current_state = $request->current_state ?? $user->current_state;
+            $user->current_country = $request->current_country ?? $user->current_country;
+            $user->current_address = $request->current_address ?? $user->current_address;
+            $user->save();
+        }
+
+        if ($section == 'skills') {
+            $user->about = $request->about;
+            $user->skills = !empty($request->skills) ? json_encode($request->skills) : $user->skills;
+            $user->save();
+        }
+
+        if ($section == 'portfolio') {
+            // Ensure current portfolio images are an array of filenames
+            $currentPortfolioImages = is_string($user->portfolio_images)
+                ? json_decode($user->portfolio_images, true)
+                : ($user->portfolio_images ?? []);
+
+            // Remove images marked for deletion
+            if ($request->filled('deleted_images')) {
+                $deletedIndexes = explode(',', $request->input('deleted_images'));
+                foreach ($deletedIndexes as $index) {
+                    if (isset($currentPortfolioImages[$index])) {
+                        $imageToDelete = $currentPortfolioImages[$index];
+                        $relativePath = str_starts_with($imageToDelete, 'http')
+                            ? str_replace(asset('/storage/portfolios/') . '/', '', $imageToDelete)
+                            : $imageToDelete;
+
+                        if (Storage::disk('public')->exists('portfolios/' . $relativePath)) {
+                            Storage::disk('public')->delete('portfolios/' . $relativePath);
+                        }
+                        unset($currentPortfolioImages[$index]);
+                    }
+                }
+            }
+
+            // Handle new portfolio images
+            if ($request->hasFile('portfolio_images')) {
+                foreach ($request->file('portfolio_images') as $image) {
+                    $imageName = Helpers::upload('portfolios/', 'png', $image, 'noimage.png');
+                    $currentPortfolioImages[] = $imageName; // Store only the filename
+                }
+            }
+
+            // Save updated portfolio images to the database
+            $user->portfolio_images = json_encode(array_values($currentPortfolioImages)); // Re-index the array
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'data' => $user,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $user,
+        ]);
     }
 
     /**
