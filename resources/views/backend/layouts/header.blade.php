@@ -5,17 +5,17 @@
             <!-- Topbar Brand Logo -->
             <div class="logo-box">
                 <!-- Brand Logo Light -->
-                <a href="index.html" class="logo-light">
-                    {{-- <img src="{{asset('/assets/images/logo-light.png')}}" alt="logo" class="logo-lg">
-                    <img src="assets/images/logo-sm.png" alt="small logo" class="logo-sm"> --}}
-                    <h3>ROOMZHUB</h3>
+                <a href="{{route('adminDashboard')}}" class="logo-light">
+                    <img src="{{asset('/assets/backend/images/roomzhub-logo.png')}}" alt="logo" class="logo-lg">
+                    <img src="{{asset('/assets/backend/images/roomzhub-logo.png')}}" alt="small logo" class="logo-sm">
+                    <h4>Property Maintenance</h4>
                 </a>
 
                 <!-- Brand Logo Dark -->
-                <a href="index.html" class="logo-dark">
-                    {{-- <img src="{{asset('/assets/images/logo-dark.png')}}" alt="dark logo" class="logo-lg">
-                    <img src="assets/images/logo-sm.png" alt="small logo" class="logo-sm"> --}}
-                    <h3>ROOMZHUB</h3>
+                <a href="{{route('adminDashboard')}}" class="logo-dark">
+                    <img src="{{asset('/assets/backend/images/roomzhub-logo.png')}}" alt="logo" class="logo-lg">
+                    <img src="{{asset('/assets/backend/images/roomzhub-logo.png')}}" alt="small logo" class="logo-sm">
+                    <h4>Property Maintenance</h4>
                 </a>
             </div>
 
@@ -239,7 +239,7 @@
                 <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                     <img src="{{asset('/assets/backend/images/users/user-1.jpg')}}" alt="user-image" class="rounded-circle">
                     <span class="ms-1 d-none d-md-inline-block">
-                        Geneva <i class="mdi mdi-chevron-down"></i>
+                        {{ $authUser->name }} <i class="mdi mdi-chevron-down"></i>
                     </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end profile-dropdown ">

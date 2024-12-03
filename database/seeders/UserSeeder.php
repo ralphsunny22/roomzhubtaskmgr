@@ -18,11 +18,18 @@ class UserSeeder extends Seeder
     {
         // Sample data for the seekers table nick@email.com, client@email.com, freelancer@email.com
         $user = new User();
+        $user->name = 'Admin RoomzHub';
+        $user->email = 'admin@roomzhub.com';
+        $user->password = Hash::make('password');
+        $user->is_phone_number_visible = false;
+        $user->status = 'superadmin';
+        $user->save();
+
+        $user = new User();
         $user->name = 'Raphael Santos';
         $user->email = 'santosralph2022@gmail.com';
         $user->password = Hash::make('password');
         $user->is_phone_number_visible = false;
-
         $user->save();
 
         $user = new User();

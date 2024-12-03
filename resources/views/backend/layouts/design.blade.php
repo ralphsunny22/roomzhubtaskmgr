@@ -10,7 +10,7 @@
         <meta content="Coderthemes" name="author" />
 
         <!-- App favicon -->
-        <link rel="shortcut icon" href="{{asset('/assets/backend/images/favicon.ico')}}">
+        <link rel="shortcut icon" href="{{asset('/assets/backend/images/favicon1.ico')}}">
 
         <link href="{{asset('/assets/backend/fancybox/jquery.fancybox.css')}}" rel="stylesheet" type="text/css" />
 

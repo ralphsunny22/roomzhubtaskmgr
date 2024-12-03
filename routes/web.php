@@ -20,6 +20,11 @@ use App\Http\Controllers\Admin\DashboardController;
 Route::group(['prefix' => 'admin'], function () {
     Route::get('/', [DashboardController::class, 'adminDashboard'])->name('adminDashboard');
 
+    Route::group(['prefix' => 'auth'], function () {
+        Route::get('/login', [DashboardController::class, 'login'])->name('login');
+        Route::post('/login', [DashboardController::class, 'loginPost'])->name('loginPost');
+    });
+
     Route::group(['prefix' => 'users'], function () {
         Route::get('/{status?}', [DashboardController::class, 'allUser'])->name('allUser');
     });
