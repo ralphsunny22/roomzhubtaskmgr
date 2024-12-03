@@ -24,7 +24,7 @@
         <div class="user-box text-center">
             <img src="{{asset('/assets/backend/images/users/user-1.jpg')}}" alt="user-img" title="Mat Helme" class="rounded-circle avatar-md">
             <div class="dropdown">
-                <a href="javascript: void(0);" class="dropdown-toggle h5 mb-1 d-block" data-bs-toggle="dropdown">Geneva Kennedy</a>
+                <a href="javascript: void(0);" class="dropdown-toggle h5 mb-1 d-block" data-bs-toggle="dropdown">{{Auth::guard('web')->user()->name}}</a>
                 <div class="dropdown-menu user-pro-dropdown">
 
                     <!-- item-->
