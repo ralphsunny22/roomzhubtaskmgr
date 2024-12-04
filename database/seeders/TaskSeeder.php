@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class TaskSeeder extends Seeder
 {
@@ -19,7 +20,7 @@ class TaskSeeder extends Seeder
                 'freelancer_id' => null,
                 'task_title' => 'Fix plumbing issues',
                 'task_date_preceed' => 'on', // on, before, flexible
-                'task_date' => '2024-09-28',
+                'task_date' => Carbon::parse('2024-09-28')->format('Y-m-d'),
                 'task_part_of_day' => 'morning', // morning, mid-day, afternoon, evening
                 'task_time_of_day' => 'before 10am', // before 10am, 10am - 2pm, 2pm - 6pm, after 6pm
                 'is_removal_task' => false, // involves transit
@@ -53,7 +54,7 @@ class TaskSeeder extends Seeder
                 'freelancer_id' => null,
                 'task_title' => 'Replace broken tiles',
                 'task_date_preceed' => 'on', // on, before, flexible
-                'task_date' => '2024-09-28',
+                'task_date' => Carbon::parse('2024-09-28')->format('Y-m-d'),
                 'task_part_of_day' => 'mid-day', // morning, mid-day, afternoon, evening
                 'task_time_of_day' => '10am - 2pm', // before 10am, 10am - 2pm, 2pm - 6pm, after 6pm
                 'is_removal_task' => false, // involves transit
@@ -87,7 +88,7 @@ class TaskSeeder extends Seeder
                 'freelancer_id' => null,
                 'task_title' => 'Replace broken tiles',
                 'task_date_preceed' => 'on', // on, before, flexible
-                'task_date' => '2024-09-28',
+                'task_date' => Carbon::parse('2024-09-28')->format('Y-m-d'),
                 'task_part_of_day' => 'mid-day', // morning, mid-day, afternoon, evening
                 'task_time_of_day' => '10am - 2pm', // before 10am, 10am - 2pm, 2pm - 6pm, after 6pm
                 'is_removal_task' => false, // involves transit

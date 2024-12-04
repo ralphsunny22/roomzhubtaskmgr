@@ -19,7 +19,7 @@ return new class extends Migration
 
             $table->longText('task_title')->nullable();
             $table->string('task_date_preceed')->nullable(); //on, before, flexible
-            $table->string('task_date')->nullable();
+            $table->date('task_date')->nullable();
             $table->string('task_part_of_day')->nullable(); //morning, mid-day, afternoon evening
             $table->string('task_time_of_day')->nullable(); // before 10am, 10am - 2pm, 2pm - 6pm, after 6pm
 

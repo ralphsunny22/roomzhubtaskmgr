@@ -253,6 +253,35 @@ class Helpers
         }
     }
 
+    public static function calculateDistance($latitude1, $longitude1, $latitude2, $longitude2)
+    {
+        $toRadian = function ($degree) {
+            return ($degree * M_PI) / 180; // Convert degree to radian
+        };
+
+        $R = 6371; // Radius of Earth in kilometers
+
+        $latDiff = $latitude2 - $latitude1;
+        $dLat = $toRadian($latDiff);
+
+        $lonDiff = $longitude2 - $longitude1;
+        $dLon = $toRadian($lonDiff);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos($toRadian($latitude1)) * cos($toRadian($latitude2)) *
+            sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        $distance = $R * $c; // Distance in kilometers
+
+        // Round to 1 decimal place
+        return round($distance, 1);
+    }
+
+// // Example usage
+// $distance = calculateDistance(25.3773009, 68.3034496, 25.3947972, 68.3312881);
+// echo "Distance: " . $distance . " km";
 
 
 }

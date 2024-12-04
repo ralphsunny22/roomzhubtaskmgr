@@ -20,6 +20,7 @@ Route::group(['prefix' => 'auth'], function () {
 Route::group(['prefix' => 'tasks'], function () {
     Route::get('/all', [TaskController::class, 'allTask']);
     Route::get('/single/{id}', [TaskController::class, 'singleTask']);
+    Route::post('/search', [TaskController::class, 'search']);
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'client'], function () {
