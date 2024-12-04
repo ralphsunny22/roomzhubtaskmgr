@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\CentralLogics\Helpers;
+use Carbon\Carbon;
 
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
@@ -49,11 +50,10 @@ class ClientController extends Controller
             $task->freelancer_id = null;
             $task->task_title = $data['task_title'] ?? null;
             $task->task_date_preceed = $data['task_date_preceed'] ?? null;
-            $task->task_date = $data['task_date'] ?? null;
+            $task->task_date = $data['task_date'] ? Carbon::parse($data['task_date'])->format('Y-m-d') : null;
             $task->task_part_of_day = $data['task_part_of_day'] ?? null;
             $task->task_time_of_day = $data['task_time_of_day'] ?? null;
             $task->is_removal_task = $data['is_removal_task'] === 'true' ? true : false;
-            $task->task_date = $data['task_date'] ?? null;
 
             $task->pickup_latitude = $data['pickup_latitude'] ?? null;
             $task->pickup_longitude = $data['pickup_longitude'] ?? null;
@@ -158,7 +158,7 @@ class ClientController extends Controller
             // Update task details
             $task->task_title = $data['task_title'] ?? $task->task_title;
             $task->task_date_preceed = $data['task_date_preceed'] ?? $task->task_date_preceed;
-            $task->task_date = $data['task_date'] ?? $task->task_date;
+            $task->task_date = $data['task_date'] ? Carbon::parse($data['task_date'])->format('Y-m-d') : $task->task_date;
             $task->task_part_of_day = $data['task_part_of_day'] ?? $task->task_part_of_day;
             $task->task_time_of_day = $data['task_time_of_day'] ?? $task->task_time_of_day;
             $task->is_removal_task = $data['is_removal_task'] === 'true' ? true : $task->is_removal_task;
