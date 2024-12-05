@@ -21,6 +21,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('/', [DashboardController::class, 'adminDashboard'])->name('adminDashboard');
 
     Route::group(['prefix' => 'auth'], function () {
+        Route::get('/logout', [DashboardController::class, 'logout'])->name('logout');
         Route::get('/login', [DashboardController::class, 'login'])->name('login');
         Route::post('/login', [DashboardController::class, 'loginPost'])->name('loginPost');
         Route::get('/autologin/{section}', [DashboardController::class, 'autologin'])->name('autologin');

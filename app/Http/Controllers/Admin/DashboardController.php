@@ -128,6 +128,13 @@ class DashboardController extends Controller
         }
     }
 
+    public function logout()
+    {
+        $user = Auth::guard('web')->user();
+        Auth::guard('web')->logout($user);
+        return view('backend.auth.login');
+    }
+
     public function adminDashboard()
     {
         $authUser = Auth::guard('web')->user();
