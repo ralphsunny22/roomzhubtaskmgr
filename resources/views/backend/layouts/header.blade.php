@@ -32,21 +32,27 @@
                 </a>
                 <div class="dropdown-menu">
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
+                    <a href="{{route('autologin', 'au')}}" class="dropdown-item">
                         <i class="fe-briefcase me-1"></i>
-                        <span>Market Place</span>
+                        <span>RoomzHub</span>
                     </a>
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
+                    <a href="{{route('autologin', 'taskmgr')}}" class="dropdown-item">
                         <i class="fe-briefcase me-1"></i>
                         <span>Property Maintenance</span>
                     </a>
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
+                    <a href="{{route('autologin', 'holidayhub')}}" class="d-none dropdown-item">
                         <i class="fe-user me-1"></i>
                         <span>Home Swap</span>
+                    </a>
+
+                     <!-- item-->
+                     <a href="{{route('autologin', 'marketplace')}}" class="dropdown-item">
+                        <i class="fe-briefcase me-1"></i>
+                        <span>Market Place</span>
                     </a>
 
                 </div>

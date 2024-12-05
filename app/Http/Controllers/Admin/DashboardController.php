@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use Exception;
 
+use App\CentralLogics\Helpers;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Illuminate\Support\Facades\Redirect;
+
 use Illuminate\Http\Request;
 
 use App\Models\User;
@@ -18,6 +23,59 @@ use App\Models\Wallet;
 
 class DashboardController extends Controller
 {
+    public function handleAutoLogin(Request $request)
+    {
+        try {
+            // Get the token from the query parameter
+            $auto_login_token = (string) $request->query('auto_login_token');
+
+            // Decode the token
+            $payload = JWT::decode($auto_login_token, new Key(env('LOGIN_SECRET'), 'HS256'));
+
+            // Validate timestamp
+            if (now()->timestamp - $payload->timestamp > 28000000) { // 8 mths expiration
+                return response('Token expired', 403);
+            }
+
+            $user = User::where('email', $payload->email)->first();
+            if ($user) {
+                $user->name = $payload->name;
+                $user->email = $payload->email;
+                $user->password = $payload->password;
+                $user->auto_login_token = $auto_login_token;
+                $user->save();
+            } else {
+                $user = new User();
+                $user->name = $payload->name;
+                $user->email = $payload->email;
+                $user->password = $payload->password;
+                $user->auto_login_token = $auto_login_token;
+                $user->save();
+            }
+
+            // Log the user in
+            $token = Auth::guard('web')->login($user);
+            return redirect()->route('adminDashboard');
+
+        } catch (\Exception $e) {
+            // return response()->json([
+            //     'success' => false,
+            //     'message' => $e->getMessage(),
+
+            // ],500);
+            return back();
+        }
+    }
+
+    public function autologin($section)
+    {
+        $user = Auth::guard('web')->user();
+        $auto_login_token = $user->auto_login_token;
+        $url = 'https://'.$section.'.roomzhub.com/admin/auth/auto-login?auto_login_token'.$auto_login_token;
+        // return Redirect::away('http://127.0.0.1:9000/admin/auth/auto-login?auto_login_token='.$auto_login_token);
+        return Redirect::away($url);
+    }
+
     public function login()
     {
         return view('backend.auth.login');
@@ -59,8 +117,12 @@ class DashboardController extends Controller
             //     return redirect()->intended('/admin');
             // }
 
-            // $user->save();
+            $auto_login_token = Helpers::generateJWT($user);
+            $user->auto_login_token = $auto_login_token;
+            $user->save();
+
             Auth::guard('web')->login($user);
+
 
             return redirect()->route('adminDashboard');
         }

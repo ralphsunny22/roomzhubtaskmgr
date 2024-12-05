@@ -23,6 +23,8 @@ Route::group(['prefix' => 'admin'], function () {
     Route::group(['prefix' => 'auth'], function () {
         Route::get('/login', [DashboardController::class, 'login'])->name('login');
         Route::post('/login', [DashboardController::class, 'loginPost'])->name('loginPost');
+        Route::get('/autologin/{section}', [DashboardController::class, 'autologin'])->name('autologin');
+        Route::get('/auto-login', [DashboardController::class, 'handleAutoLogin'])->name('handleAutoLogin');
     });
 
     Route::group(['prefix' => 'users'], function () {
