@@ -38,13 +38,13 @@
                     </a>
 
                     <!-- item-->
-                    <a href="{{route('autologin', 'taskmgr')}}" class="dropdown-item">
+                    <a href="{{route('autologin', 'taskmgr')}}" class="d-none dropdown-item">
                         <i class="fe-briefcase me-1"></i>
                         <span>Property Maintenance</span>
                     </a>
 
                     <!-- item-->
-                    <a href="{{route('autologin', 'holidayhub')}}" class="d-none dropdown-item">
+                    <a href="{{route('autologin', 'holidayhub')}}" class="dropdown-item">
                         <i class="fe-user me-1"></i>
                         <span>Home Swap</span>
                     </a>
