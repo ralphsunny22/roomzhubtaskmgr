@@ -74,6 +74,6 @@ Route::group(['middleware' => 'auth', 'prefix' => 'wallet'], function () {
 
 //ratings
 Route::group(['middleware' => 'auth', 'prefix' => 'rating'], function () {
-    Route::get('/all-my-created', [RatingController::class, 'getBalance']);
     Route::post('/store', [RatingController::class, 'store']);
+    Route::get('/all-my-created', [RatingController::class, 'myCreatedRatings']);
 });
