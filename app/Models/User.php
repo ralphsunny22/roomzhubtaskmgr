@@ -86,6 +86,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(TaskOffer::class, 'client_id');
     }
 
+    public function myCreatedRatings()
+    {
+        return $this->hasMany(Rating::class, 'created_by');
+    }
+
     public function getBgColor($status) {
 
         $allStatus = [

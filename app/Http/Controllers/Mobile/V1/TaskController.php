@@ -55,6 +55,124 @@ class TaskController extends Controller
     public function search(Request $request)
     {
         $user = Auth::user();
+
+        try{
+
+            // Initialize query builder with base condition
+            $result = Task::query();
+
+            // Handle categories filter
+            if ($request->query('categories') === "true") {
+                $category_option = $request->category_option;
+                if ($category_option === "in_person") {
+                    $result->where('is_done_inperson', true);
+                } elseif ($category_option === "remotely") {
+                    $result->where('is_done_online', true);
+                }
+            }
+
+            // Handle distance filter
+            if ($request->query('distance') === "true") {
+                $subhurb_latitude = $request->subhurb_latitude;
+                $subhurb_longitude = $request->subhurb_longitude;
+                $coord_distance = $request->coord_distance; // Distance in kilometers
+
+                if ($subhurb_latitude && $subhurb_longitude && $coord_distance && $user->current_latitude && $user->current_longitude) {
+                    $userLat = $user->current_latitude;
+                    $userLon = $user->current_longitude;
+
+                    // Filter tasks roughly near the suburb coordinates
+                    $result->whereBetween('task_current_latitude', [$subhurb_latitude - 0.5, $subhurb_latitude + 0.5])
+                        ->whereBetween('task_current_longitude', [$subhurb_longitude - 0.5, $subhurb_longitude + 0.5]);
+
+                    // Fetch tasks and filter by actual distance using the helper function
+                    $result = $result->get()->filter(function ($task) use ($userLat, $userLon, $coord_distance) {
+                        if ($task->task_current_latitude && $task->task_current_longitude) {
+                            $distance = Helpers::calculateDistance(
+                                $userLat, $userLon,
+                                $task->task_current_latitude, $task->task_current_longitude
+                            );
+                            return abs($distance - $coord_distance) <= 1; // Allow 1 km tolerance
+                        }
+                        return false;
+                    })->values(); // Re-index filtered results
+                } else {
+                    $result = collect(); // Return empty if coordinates or distance is missing
+                }
+            }
+
+            // Handle price filter
+            if ($request->query('any_price') === "true") {
+                $min_price = $request->min_price;
+                $max_price = $request->max_price;
+                $result = $result->whereBetween('task_budget', [$min_price, $max_price]);
+            }
+
+            // Handle other filters
+            if ($request->query('other_filters') === "true") {
+                $other_filters_option = $request->other_filters_option;
+
+                if ($other_filters_option === "task_with_offers") {
+                    $result->whereHas('offers');
+                } elseif ($other_filters_option === "task_without_offers") {
+                    $result->whereDoesntHave('offers');
+                }
+                // No action needed for "all" since it already includes all tasks
+            }
+
+            // Handle sorting
+            if ($request->query('sort') === "true") {
+                $sort_option = $request->sort_option;
+
+                if ($sort_option === "price_high_to_low") {
+                    $result->orderBy('task_budget', 'desc');
+                } elseif ($sort_option === "price_low_to_high") {
+                    $result->orderBy('task_budget', 'asc');
+                } elseif ($sort_option === "due_date_earliest") {
+                    $result->orderBy('task_date', 'asc');
+                } elseif ($sort_option === "due_date_latest") {
+                    $result->orderBy('task_date', 'desc');
+                } elseif ($sort_option === "newest_jobs") {
+                    $result->orderBy('id', 'desc');
+                } elseif ($sort_option === "oldest_jobs") {
+                    $result->orderBy('id', 'asc');
+                } elseif ($sort_option === "closest_to_me" && $user->current_latitude && $user->current_longitude) {
+                    $userLat = $user->current_latitude;
+                    $userLon = $user->current_longitude;
+
+                    $result->selectRaw("
+                        tasks.*,
+                        (6371 * acos(
+                            cos(radians(?)) * cos(radians(task_current_latitude)) *
+                            cos(radians(task_current_longitude) - radians(?)) +
+                            sin(radians(?)) * sin(radians(task_current_latitude))
+                        )) AS distance
+                    ", [$userLat, $userLon, $userLat])
+                        ->orderBy('distance');
+                }
+            }
+
+            // Execute query and return results
+            if (is_a($result, 'Illuminate\Database\Eloquent\Builder')) {
+                $result = $result->get(); // If still a query builder, execute it
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function search1(Request $request)
+    {
+        $user = Auth::user();
         try {
             $section = $request->section;
             $result = collect(); // Default empty collection
@@ -62,7 +180,6 @@ class TaskController extends Controller
             if ($section == "categories") {
                 $category_option = $request->category_option;
                 if ($category_option == "all") {
-                    // $result = Task::where(['is_done_online' => true, 'is_done_inperson' => true])->get();
                     $result = Task::all();
                 } elseif ($category_option == "in_person") {
                     $result = Task::where('is_done_inperson', true)->get();
@@ -108,20 +225,11 @@ class TaskController extends Controller
             }
 
             if ($section == "other_filters") {
-                // $task_with_offers = $request->task_with_offers;
-                // $task_without_offers = $request->task_without_offers;
                 $other_filters_option = $request->other_filters_option;
 
                 $taskWithOffersQuery = Task::whereHas('offers');
                 $taskWithoutOffersQuery = Task::whereDoesntHave('offers');
 
-                // if ($task_with_offers && !$task_without_offers) {
-                //     $result = $taskWithOffersQuery->get();
-                // } elseif ($task_without_offers && !$task_with_offers) {
-                //     $result = $taskWithoutOffersQuery->get();
-                // } elseif ($task_with_offers && $task_without_offers) {
-                //     $result = $taskWithOffersQuery->union($taskWithoutOffersQuery)->get();
-                // }
                 if ($other_filters_option=="task_with_offers") {
                     $result = $taskWithOffersQuery->get();
                 } elseif ($other_filters_option=="task_without_offers") {
