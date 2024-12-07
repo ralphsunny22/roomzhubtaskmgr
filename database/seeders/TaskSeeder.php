@@ -16,7 +16,7 @@ class TaskSeeder extends Seeder
     {
         DB::table('tasks')->insert([
             [
-                'created_by' => 1,
+                'created_by' => 3,
                 'freelancer_id' => null,
                 'task_title' => 'Fix plumbing issues',
                 'task_date_preceed' => 'on', // on, before, flexible
@@ -50,7 +50,7 @@ class TaskSeeder extends Seeder
             ],
 
             [
-                'created_by' => 1,
+                'created_by' => 3,
                 'freelancer_id' => null,
                 'task_title' => 'Replace broken tiles',
                 'task_date_preceed' => 'on', // on, before, flexible

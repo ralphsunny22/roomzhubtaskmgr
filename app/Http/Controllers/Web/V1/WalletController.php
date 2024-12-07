@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Wallet;
+use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -14,7 +15,7 @@ class WalletController extends Controller
     public function getBalance()
     {
         $user = Auth::user();
-        $balance = Wallet::where('user_id', $user->id)
+        $balance = Wallet::with('task')->where('user_id', $user->id)
             ->selectRaw('SUM(CASE WHEN type = "earning" THEN amount ELSE -amount END) as balance')
             ->value('balance') ?? 0;
 
@@ -35,10 +36,12 @@ class WalletController extends Controller
                 'description' => 'nullable|string',
             ]);
 
-            $user = Auth::user();
+            // $user = Auth::user();
+            $task = Task::findOrFail($request->task_id);
+            $userId = $task->freelancer_id;
 
             Wallet::create([
-                'user_id' => $user->id,
+                'user_id' => $userId,
                 'task_id' => $request->task_id,
                 'task_offer_id' => $request->task_offer_id,
                 'type' => 'earning',
@@ -86,7 +89,7 @@ class WalletController extends Controller
 
     public function getTransactions()
     {
-        $transactions = Wallet::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        $transactions = Wallet::with('task')->where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'success' => true,
