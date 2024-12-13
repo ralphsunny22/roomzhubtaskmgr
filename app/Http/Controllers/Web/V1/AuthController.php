@@ -45,20 +45,34 @@ class AuthController extends Controller
         $savedUser = User::where('email', $request->email)->first();
 
         if (!$savedUser) {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'profile_picture' => !empty($request->profile_picture) ? $request->profile_picture : null,
-                'signin_type' => 'social',
-                'password' => Hash::make($request->email),
-            ]);
-            $token = Auth::login($user);
+            // $user = User::create([
+            //     'name' => $request->name,
+            //     'email' => $request->email,
+            //     'profile_picture' => !empty($request->profile_picture) ? $request->profile_picture : null,
+            //     'signin_type' => 'social',
+            //     'password' => Hash::make($request->email),
+            // ]);
+            // $token = Auth::login($user);
 
             // try {
             //     Notification::route('mail', [$request->email])->notify(new UserLogin($user));
             // } catch (\Throwable $th) {
             //     //throw $th;
             // }
+
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->profile_picture = !empty($request->profile_picture) ? $request->profile_picture : null;
+            $user->signin_type = 'social';
+            $user->password = Hash::make($request->email);
+            $user->save();
+
+            $auto_login_token = Helpers::generateJWT($user);
+            $user->auto_login_token = $auto_login_token;
+            $user->save();
+
+            $token = Auth::login($user);
 
             return response()->json([
                 'success' => true,
@@ -85,6 +99,10 @@ class AuthController extends Controller
         $user->profile_picture = !empty($request->profile_picture) ? $request->profile_picture : null;
         $user->signin_type = 'social';
         $user->password = Hash::make($request->email);
+        $user->save();
+
+        $auto_login_token = Helpers::generateJWT($user);
+        $user->auto_login_token = $auto_login_token;
         $user->save();
 
         $token = Auth::login($user);
@@ -127,7 +145,7 @@ class AuthController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->signin_type = !empty($request->signin_type) ? $request->signin_type : 'email';
-        $profile_picture = !empty($request->profile_picture) ? $request->profile_picture : null;
+        $user->profile_picture = !empty($request->profile_picture) ? $request->profile_picture : null;
         $user->password = Hash::make($request->password);
         $user->save();
 
