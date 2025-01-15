@@ -12,9 +12,9 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('/update-profile', [AuthController::class, 'updateProfile']);
 
     ////forgot password
-    // Route::post('forgot-password', 'ForgotPasswordController@sendResetLink');
-    // Route::post('reset-password', 'ForgotPasswordController@resetPassword');
-    // Route::post('change-password', 'ForgotPasswordController@changePassword')->middleware('auth');
+    Route::post('forgot-password', 'ForgotPasswordController@sendResetLink');
+    Route::post('reset-password', 'ForgotPasswordController@resetPassword');
+    Route::post('change-password', 'ForgotPasswordController@changePassword')->middleware('auth');
 });
 
 Route::group(['prefix' => 'tasks'], function () {
