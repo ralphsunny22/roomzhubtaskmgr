@@ -16,6 +16,16 @@ use App\Http\Controllers\Admin\DashboardController;
 |
 */
 
+Route::get('authentication-failed', function () {
+    $errors = [];
+    // array_push($errors, ['success'=>false, 'code' => 'auth-001', 'message' => 'Unauthenticated.', 'headers' => $request->bearerToken()]);
+    array_push($errors, ['success'=>false, 'code' => 'auth-001', 'message' => 'Unauthenticated.']);
+    return response()->json([
+        'errors' => $errors,
+    ], 401);
+})->name('authentication-failed');
+///
+
 ////admin/////////////
 Route::group(['prefix' => 'admin'], function () {
     Route::get('/', [DashboardController::class, 'adminDashboard'])->name('adminDashboard')->middleware('auth:web');;

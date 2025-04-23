@@ -77,3 +77,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'rating'], function () {
     Route::post('/store', [RatingController::class, 'store']);
     Route::get('/all-my-created', [RatingController::class, 'myCreatedRatings']);
 });
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/bank-list', [BankController::class, 'bankList']);
+    Route::post('/save-bank-detail', [BankController::class, 'saveBankDetails']);
+});

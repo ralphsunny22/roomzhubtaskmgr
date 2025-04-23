@@ -12,9 +12,9 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('/update-profile', [AuthController::class, 'updateProfile']);
 
     ////forgot password
-    Route::post('forgot-password', 'ForgotPasswordController@sendResetLink');
-    Route::post('reset-password', 'ForgotPasswordController@resetPassword');
-    Route::post('change-password', 'ForgotPasswordController@changePassword')->middleware('auth');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
+    Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+    Route::post('/change-password', [ForgotPasswordController::class, 'changePassword'])->middleware('auth');
 });
 
 Route::group(['prefix' => 'tasks'], function () {
@@ -67,4 +67,9 @@ Route::group(['middleware' => 'auth', 'prefix' => 'wallet'], function () {
     Route::post('/add-earning', [WalletController::class, 'addEarning']);
     Route::post('/withdraw', [WalletController::class, 'withdraw']);
     Route::get('/transactions', [WalletController::class, 'getTransactions']);
+});
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/bank-list', [BankController::class, 'bankList']);
+    Route::post('/save-bank-detail', [BankController::class, 'saveBankDetails']);
 });
