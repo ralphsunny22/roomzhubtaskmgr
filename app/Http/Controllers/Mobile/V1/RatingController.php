@@ -54,7 +54,7 @@ class RatingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function myCreatedRatings(string $id)
+    public function myCreatedRatings()
     {
         $user = Auth::user();
         $ratings = $user->myCreatedRatings;
@@ -67,9 +67,32 @@ class RatingController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function freelancerRatings()
     {
-        //
+        $user = Auth::user();
+        $ratings = $user->myCreatedRatings;
+        return response()->json([
+            'success' => true,
+            'data' => $ratings
+        ]);
+    }
+
+    public function singleTaskRating(string $task_id)
+    {
+        $user = Auth::user();
+        $rating = Rating::where('task_id', $task_id)->first();
+        if (($rating->created_by==$user->id) || ($rating->task_freelancer_id==$user->id)) {
+            return response()->json([
+                'success' => true,
+                'data' => $rating
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request'
+            ]);
+        }
+
     }
 
     /**

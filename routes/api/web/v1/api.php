@@ -69,6 +69,14 @@ Route::group(['middleware' => 'auth', 'prefix' => 'wallet'], function () {
     Route::get('/transactions', [WalletController::class, 'getTransactions']);
 });
 
+//ratings
+Route::group(['middleware' => 'auth', 'prefix' => 'rating'], function () {
+    Route::post('/store', [RatingController::class, 'store']);
+    Route::get('/all-my-created', [RatingController::class, 'myCreatedRatings']);
+    Route::get('/freelancer-ratings', [RatingController::class, 'freelancerRatings']);
+    Route::get('/single-rating/{task_id}', [RatingController::class, 'singleTaskRating']);
+});
+
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/bank-list', [BankController::class, 'bankList']);
     Route::post('/save-bank-detail', [BankController::class, 'saveBankDetails']);

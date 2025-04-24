@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\CentralLogics\Helpers;
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,3 +65,5 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/payouts', [DashboardController::class, 'allPayout'])->name('allPayout');
     });
 });
+
+Route::get('/mailchimp', [TestController::class, 'sendForgotPasswordMail'])->name('sendForgotPasswordMail');

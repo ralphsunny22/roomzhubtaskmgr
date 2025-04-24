@@ -12,8 +12,11 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "mailchimp/marketing": "^3.0",
         "php-open-source-saver/jwt-auth": "^2.7",
-        "stripe/stripe-php": "^16.0"
+        "stripe/stripe-php": "^16.0",
+        "symfony/http-client": "^7.2",
+        "symfony/mailgun-mailer": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
