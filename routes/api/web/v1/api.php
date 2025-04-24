@@ -74,7 +74,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'rating'], function () {
     Route::post('/store', [RatingController::class, 'store']);
     Route::get('/all-my-created', [RatingController::class, 'myCreatedRatings']);
     Route::get('/freelancer-ratings', [RatingController::class, 'freelancerRatings']);
-    Route::get('/single-rating/{task_id}', [RatingController::class, 'singleTaskRating']);
+    Route::get('/single-task/{task_id}', [RatingController::class, 'singleTaskRating']);
 });
 
 Route::group(['middleware' => 'auth'], function () {
