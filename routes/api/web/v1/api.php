@@ -30,11 +30,14 @@ Route::group(['middleware' => 'auth', 'prefix' => 'client'], function () {
     Route::post('/update-task/{id}', [ClientController::class, 'updateTask']);
     Route::get('/task-offers/{task_id?}', [ClientController::class, 'taskOffers']);
     Route::get('/single-offer/{task_offer_id}', [ClientController::class, 'singleOffer']);
-    Route::post('/accept-offer/{task_offer_id}', [ClientController::class, 'acceptOffer']);
+    Route::post('/accept-offer', [ClientController::class, 'acceptOffer']);
+    Route::post('/cancel-offer', [ClientController::class, 'cancelTaskOffer']);
     Route::post('/confirm-payment', [ClientController::class, 'confirmPayment']);
 
     Route::get('/update-task-status/{task_id}/{status}', [ClientController::class, 'updateTaskStatus']);
+
 });
+Route::post('/create-task-from-estore', [ClientController::class, 'fromEstore']);
 
 Route::group(['middleware' => 'auth', 'prefix' => 'freelancer'], function () {
     Route::post('/make-offer/{task_id}', [FreelanceController::class, 'makeOffer']);
@@ -42,13 +45,13 @@ Route::group(['middleware' => 'auth', 'prefix' => 'freelancer'], function () {
     Route::get('/my-offers', [FreelanceController::class, 'myOffers']);
     Route::get('/single-offer/{task_offer_id}', [FreelanceController::class, 'singleOffer']);
 
-    Route::get('/update-task-status/{task_id}/{status}', [FreelanceController::class, 'updateTaskStatus']);
+    Route::post('/update-task-offer-status/{task_offer_id}/{status}', [FreelanceController::class, 'updateTaskOfferStatus']);
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'payment'], function () {
-    Route::get('/stripe/create-account', [StripeController::class, 'createStripeCustomConnectedAccount']);
-    Route::get('/stripe/reauth', [StripeController::class, 'reauth'])->name('stripe.reauth');
-    Route::get('/stripe/onboarding-success', [StripeController::class, 'onboardingSuccess'])->name('stripe.onboarding-success');
+    // Route::get('/stripe/create-account', [StripeController::class, 'createStripeCustomConnectedAccount']);
+    // Route::get('/stripe/reauth', [StripeController::class, 'reauth'])->name('stripe.reauth');
+    // Route::get('/stripe/onboarding-success', [StripeController::class, 'onboardingSuccess'])->name('stripe.onboarding-success');
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'fcm'], function () {
@@ -81,3 +84,23 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/bank-list', [BankController::class, 'bankList']);
     Route::post('/save-bank-detail', [BankController::class, 'saveBankDetails']);
 });
+
+//subscriptions
+Route::group(['middleware' => 'auth', 'prefix' => 'subscription'], function () {
+    Route::post('/renew', [FreelancerSubscriptionController::class, 'createOrRenew']);
+    Route::post('/payment-success', [FreelancerSubscriptionController::class, 'handlePaymentSuccess']);
+    Route::get('/current-active-plan', [FreelancerSubscriptionController::class, 'currentActivePlan']);
+});
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::post('/wallet/create-connected-account', [StripeConnectController::class, 'createConnectedAccount']);
+    Route::post('/wallet/add-bank-account', [StripeConnectController::class, 'addBankAccount']);
+    Route::post('/wallet/check-account-status', [StripeConnectController::class, 'checkAccountStatus']);
+    Route::post('/wallet/upload-verification-documents', [StripeConnectController::class, 'uploadVerificationDocuments']);
+    Route::post('/wallet/transfer-to-worker', [StripeConnectController::class, 'transferToWorker']);
+    Route::post('/wallet/trigger-payout', [StripeConnectController::class, 'triggerPayout']);
+});
+
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
+Route::post('/stripe/fund-test-account', [StripeController::class, 'fundTestAccount']);
+

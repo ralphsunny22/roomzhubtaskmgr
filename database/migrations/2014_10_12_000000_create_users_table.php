@@ -20,7 +20,10 @@ return new class extends Migration
             $table->longText('auto_login_token')->nullable();
 
             $table->string('profile_picture')->nullable();
+            $table->string('profile_picture_url')->nullable();
             $table->longText('fcm_device_token')->nullable();
+
+            $table->text('stripe_customer_id')->nullable();
 
             $table->rememberToken();
             $table->longText('user_remember_token')->nullable(); //will be used to check credentials while navigating diff apps/sites from roomzhub

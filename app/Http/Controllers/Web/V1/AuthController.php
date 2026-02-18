@@ -275,6 +275,7 @@ class AuthController extends Controller
                 $user->name = $payload->name;
                 $user->email = $payload->email;
                 $user->password = $payload->password;
+                $user->profile_picture_url = $payload->profile_picture_url;
                 $user->auto_login_token = $auto_login_token;
                 $user->save();
             } else {
@@ -282,6 +283,7 @@ class AuthController extends Controller
                 $user->name = $payload->name;
                 $user->email = $payload->email;
                 $user->password = $payload->password;
+                $user->profile_picture_url = $payload->profile_picture_url;
                 $user->auto_login_token = $auto_login_token;
                 $user->save();
             }
@@ -337,6 +339,7 @@ class AuthController extends Controller
                 // Upload new image
                 $profile_picture = Helpers::upload('users/', 'png', $image, 'noimage.png');
                 $user->profile_picture = $profile_picture;
+                $user->profile_picture_url = asset('/storage/users/' . $profile_picture);
                 $user->save();
             }
 

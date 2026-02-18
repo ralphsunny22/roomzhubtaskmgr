@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
 use App\Models\TaskOffer;
 use App\Models\Rating;
+// use App\Models\ListOffer;
 
 class RatingController extends Controller
 {
@@ -20,20 +21,20 @@ class RatingController extends Controller
         $user = Auth::user();
         try {
             $request->validate([
-                'task_id' => 'required|exists:tasks,id',
-                'task_offer_id' => 'required|exists:task_offers,id',
+                'task_id' => 'nullable|exists:tasks,id',
+                'task_offer_id' => 'nullable|exists:task_offers,id',
                 'rating_value' => 'required|integer',
                 'review' => 'nullable|string',
             ]);
 
-            $offer = ListOffer::find($task_offer_id);
+            $offer = TaskOffer::find($request->task_offer_id);
             $rating = new Rating();
             $rating->created_by = $user->id;
             $rating->task_owner_id = $offer->client_id;
             $rating->task_freelancer_id = $offer->freelancer_id;
 
             $rating->task_id = $request->task_id;
-            $rating->task_offer_id = $request->task_offer_id;
+            $rating->task_offer_id = isset($request->task_offer_id) ? $request->task_offer_id : null;
             $rating->rating_value = (int) $request->rating_value;
             $rating->review = $request->review ?? null;
             $rating->save();

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use App\CentralLogics\Helpers;
 
 use App\Models\Task;
@@ -21,6 +22,17 @@ class FreelanceController extends Controller
         try {
             $user = Auth::user();
 
+            $validator = Validator::make($request->all(), [
+            'amount_offered_by_freelancer' => 'nullable|integer|min:10',
+            'freelancer_date_availability' => 'nullable|string',
+            'freelancer_start_time_available' => 'nullable|string',
+            'freelancer_end_time_available' => 'nullable|string',
+            'freelancer_proposal' => 'nullable|string',
+            ], [
+                'amount_offered_by_freelancer.integer' => 'amount_offered_by_freelancer is must be an integer.',
+                'currency.string' => 'currency must be a string.',
+            ]);
+
             $task = Task::findOrFail($task_id);
 
             //u cannot make-offer on ur own task
@@ -31,20 +43,47 @@ class FreelanceController extends Controller
                 ]);
             }
 
+            $data = $request->all();
+
             $offerExists = TaskOffer::where(['task_id' => $task->id, 'freelancer_id' => $user->id])->first();
 
-            if ($offerExists) {
+            if ($offerExists && $offerExists->status === 'pending') {
                 return response()->json([
                     'success' => false,
                     'message' => "You've already made offer for this task",
                 ]);
             }
 
-            $data = $request->all();
+            // if ($offerExists->status !== 'pending' && in_array($offerExists->status, ['accepted','in_progress','completed'])) {
+            if ($offerExists && $offerExists->status !== 'pending') {
+                $taskOffer = $offerExists;
+                $taskOffer->task_id = $task->id;
+                $taskOffer->amount_offered_by_freelancer = $data['amount_offered_by_freelancer'] ? (int) $data['amount_offered_by_freelancer'] : (int) $task->task_budget;
+                $taskOffer->client_id = $task->created_by;
+                $taskOffer->freelancer_id = $user->id;
+
+                $taskOffer->freelancer_date_availability = $data['freelancer_date_availability'] ? $data['freelancer_date_availability'] : null;
+                $taskOffer->freelancer_start_time_available = $data['freelancer_start_time_available'] ? $data['freelancer_start_time_available'] : null;
+                $taskOffer->freelancer_end_time_available = $data['freelancer_end_time_available'] ? $data['freelancer_end_time_available'] : null;
+                $taskOffer->freelancer_proposal = $data['freelancer_proposal'] ? $data['freelancer_proposal'] : null;
+
+                $taskOffer->save();
+                //make user a freelancer
+                if(!$user->is_freelancer){
+                    $user->is_freelancer = true;
+                    $user->save();
+                }
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Offer Made Successfully',
+                    'data' => $taskOffer
+                ]);
+
+            }
 
             $taskOffer = new TaskOffer();
             $taskOffer->task_id = $task->id;
-            $taskOffer->amount_offered_by_freelancer = (int) $data['amount_offered_by_freelancer'];
+            $taskOffer->amount_offered_by_freelancer = $data['amount_offered_by_freelancer'] ? (int) $data['amount_offered_by_freelancer'] : (int) $task->task_budget;
             $taskOffer->client_id = $task->created_by;
             $taskOffer->freelancer_id = $user->id;
 
@@ -155,42 +194,53 @@ class FreelanceController extends Controller
 
     }
 
-    public function updateTaskStatus(string $task_id, $status)
+    public function updateTaskOfferStatus(string $task_offer_id, $status)
     {
         try{
-            $task = Task::findOrFail($task_id);
-
+            $taskOffer = TaskOffer::findOrFail($task_offer_id);
+            $task = $taskOffer->task;
+            //pending, accepted, decline, cancelled
             //check ownership
             $user = Auth::user();
-            if($task->created_by !== $user->id){
+            if($task->freelancer_id !== $user->id){
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized request',
                 ]);
             }
+            //freelancer status: started, completed, cancelled, abandoned
+            // if ($status=="started") {
+            //     $task->freelancer_started_at = now();
+            //     $task->status = 'freelancer_started';
+            // }
+            // if ($status=="completed") {
+            //     $task->freelancer_completed_at = now();
+            //     $task->status = 'freelancer_completed';
+            // }
+            if ($taskOffer->status=="accepted" && $status=="cancelled") {
+                $taskOffer->status = 'cancelled';
+                $taskOffer->save();
 
-            if ($status=="started") {
-                $task->freelancer_started_at = now();
-                $task->status = 'started';
-            }
-            if ($status=="completed") {
-                $task->freelancer_completed_at = now();
-                $task->status = 'completed';
-            }
-            if ($status=="cancelled") {
                 $task->freelancer_cancelled_at = now();
-                $task->status = 'cancelled';
+                // $task->status = 'freelancer_cancelled';
+                $task->status = 'pending'; //reset to pending so client can accept other offers
+                $task->freelancer_id = null; //remove freelancer from task
+                $task->save();
             }
-            if ($status=="abandoned") {
-                $task->client_abandoned_at = now(); //if client abandoned the task
-                $task->status = 'abandoned';
-            }
-            $task->save();
 
+            if ($taskOffer->status !== "accepted" && $status=="abandoned") {
+                $taskOffer->status = 'cancelled';
+                $taskOffer->save();
+            }
+
+            $data = [
+                'task' => $task,
+                'taskOffer' => $taskOffer,
+            ];
             return response()->json([
                 'success' => true,
                 'message' => 'Task Status Updated Successfully',
-                'data' => $task,
+                'data' => $data,
             ]);
         } catch (\Exception $e) {
             return response()->json([

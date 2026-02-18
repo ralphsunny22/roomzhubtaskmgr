@@ -17,6 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('freelancer_id')->nullable(); //the person that eventually did the job
 
+            $table->string('source')->default('self'); //self, estore
+            $table->json('meta_data')->nullable();
             $table->longText('task_title')->nullable();
             $table->string('task_date_preceed')->nullable(); //on, before, flexible
             $table->date('task_date')->nullable();
@@ -59,6 +61,7 @@ return new class extends Migration
             $table->datetime('accepted_at')->nullable(); //when client accepted and paid
             $table->datetime('client_started_at')->nullable(); //when client indicates that task has start
             $table->datetime('client_completed_at')->nullable(); //when client says task has been completed
+            $table->datetime('client_paid_at')->nullable(); //when client says task has been paid by client
             $table->datetime('client_cancelled_at')->nullable();
             $table->datetime('client_abandoned_at')->nullable(); ////if freelancer cancelled becos client abandoned
 
@@ -70,7 +73,7 @@ return new class extends Migration
             $table->datetime('company_completed_at')->nullable(); //when client forgets to complete, but company comes handy
 
             $table->string('status'); //pending, accepted, started, cancelled, abandoned, completed
-            //pending, accepted(client has paid), started(freelancer has started task), incompleted(task is started but not completed), cancelled(if done by client) abandoned, completed(task is done)
+            //pending, accepted(client has paid), started(freelancer has started task), cancelled(if done by client) abandoned, completed(task is done)
 
             $table->timestamps();
         });

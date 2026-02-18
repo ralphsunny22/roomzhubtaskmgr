@@ -171,19 +171,19 @@ class FreelanceController extends Controller
 
             if ($status=="started") {
                 $task->freelancer_started_at = now();
-                $task->status = 'started';
+                $task->status = 'freelancer_started';
             }
             if ($status=="completed") {
                 $task->freelancer_completed_at = now();
-                $task->status = 'completed';
+                $task->status = 'freelancer_completed';
             }
             if ($status=="cancelled") {
                 $task->freelancer_cancelled_at = now();
-                $task->status = 'cancelled';
+                $task->status = 'freelancer_cancelled';
             }
             if ($status=="abandoned") {
                 $task->client_abandoned_at = now(); //if client abandoned the task
-                $task->status = 'abandoned';
+                $task->status = 'freelancer_abandoned';
             }
             $task->save();
 

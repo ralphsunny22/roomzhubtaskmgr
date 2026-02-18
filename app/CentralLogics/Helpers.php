@@ -14,6 +14,7 @@ class Helpers
             'name' => $user->name,
             'email' => $user->email,
             'password' => $user->password,
+            'profile_picture_url' => $user->profile_picture_url,
             'timestamp' => now()->timestamp // Add a timestamp for expiration validation
         ];
 

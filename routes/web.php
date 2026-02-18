@@ -59,6 +59,12 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/update-task-status/{task_id}', [DashboardController::class, 'updateTaskStatus'])->name('updateTaskStatus');
     });
 
+    Route::group(['middleware' => 'auth:web', 'prefix' => 'offers'], function () {
+        Route::get('/{status?}', [DashboardController::class, 'allOffer'])->name('allOffer');
+        Route::get('/single/{task_offer_id}', [DashboardController::class, 'singleOffer'])->name('singleOffer');
+        Route::post('/update-offer-status/{task_offer_id}', [DashboardController::class, 'updateOfferStatus'])->name('updateOfferStatus');
+    });
+
     Route::group(['middleware' => 'auth:web', 'prefix' => 'transaction'], function () {
         Route::get('/', [DashboardController::class, 'allTransaction'])->name('allTransaction');
         Route::get('/earnings', [DashboardController::class, 'allEarning'])->name('allEarning');

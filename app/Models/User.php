@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -95,6 +96,82 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Rating::class, 'task_freelancer_id');
     }
+
+    public function ownerRatings() // ratings received as a client
+    {
+        return $this->hasMany(Rating::class, 'task_owner_id');
+    }
+
+    public function givenRatings() // optional, ratings they've made
+    {
+        return $this->hasMany(Rating::class, 'created_by');
+    }
+
+    public function averageRating()
+    {
+        return $this->freelancerRatings()->avg('rating_value');
+    }
+
+    public function totalReviews()
+    {
+        return $this->freelancerRatings()->count();
+    }
+
+    public function clientReviews()
+    {
+        return $this->hasMany(Review::class, 'client_id');
+    }
+
+    public function freelancerReviews()
+    {
+        return $this->hasMany(Review::class, 'freelancer_id');
+    }
+
+    // Bonus: combined collection if you really need all of them
+    public function allReviews()
+    {
+        return $this->clientReviews->merge($this->freelancerReviews);
+    }
+
+    protected static function booted()
+    {
+        // Reviews + users
+        static::addGlobalScope('review_stats', function (Builder $query) {
+            $query->withCount([
+                'clientReviews as client_reviews',
+                'freelancerReviews as freelancer_reviews',
+            ]);
+        });
+
+        // Count per role
+        static::addGlobalScope('withRatingCounts', function ($query) {
+            $query->withCount([
+                'freelancerRatings as freelancer_rating_count',
+                'ownerRatings as owner_rating_count',
+            ]);
+        });
+
+        // Average per role
+        static::addGlobalScope('withAvgRatings', function ($query) {
+            $query->withAvg('freelancerRatings as freelancer_avg_rating', 'rating_value')
+                ->withAvg('ownerRatings as owner_avg_rating', 'rating_value');
+        });
+
+        // Universal count + universal average (optional)
+        static::addGlobalScope('withUniversalRatingStats', function ($query) {
+            $query->selectRaw("
+                (SELECT AVG(rating_value)
+                FROM ratings
+                WHERE ratings.task_freelancer_id = users.id
+                    OR ratings.task_owner_id = users.id) AS avg_rating")
+                ->selectRaw("
+                (SELECT COUNT(id)
+                FROM ratings
+                WHERE ratings.task_freelancer_id = users.id
+                    OR ratings.task_owner_id = users.id) AS rating_count");
+        });
+    }
+
 
     public function getBgColor($status) {
 

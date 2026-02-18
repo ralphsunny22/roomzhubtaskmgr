@@ -24,16 +24,22 @@ return new class extends Migration
 
             $table->string('currency')->default('usd');
 
-            $table->float('subtotal')->default(0);
-            $table->float('tax')->default(0);
+            $table->unsignedBigInteger('subtotal')->default(0);
+            $table->unsignedBigInteger('tax')->default(0);
 
             $table->boolean('has_coupon')->default(0);
             $table->unsignedBigInteger('coupon_id')->nullable();
-            $table->float('coupon_value')->default(0);
+            $table->unsignedBigInteger('coupon_value')->default(0);
 
-            $table->float('total')->default(0);
+            $table->unsignedBigInteger('total')->default(0);
 
             $table->string('payment_method_type')->default('card');
+
+            $table->text('stripe_payment_method_id')->nullable();
+            $table->text('stripe_client_secret')->nullable();
+            $table->text('stripe_payment_intent_id')->nullable();
+            $table->text('stripe_payment_status')->nullable();
+
             $table->string('status')->default('pending'); //success, failed
 
             $table->timestamps();

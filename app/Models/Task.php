@@ -9,10 +9,14 @@ use Illuminate\Support\Facades\Storage;
 class Task extends Model
 {
     use HasFactory;
+    protected $guarded = [];
 
     // protected $casts = [
     //     'task_images' => 'array', // cast to an array
     // ];
+    protected $casts = [
+        'meta_data' => 'array',
+    ];
     protected $appends = ['creator'];
 
     // Accessor to return the full path of each image in task_images

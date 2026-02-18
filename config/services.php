@@ -13,7 +13,15 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
-
+    'clicksend' => [
+        'username' => env('CLICKSEND_USERNAME'),
+        'api_key' => env('CLICKSEND_API_KEY'),
+    ],
+    'stripe' => [
+        'currency' => env('STRIPE_CURRENCY', 'AUD'),
+        'public' => env('STRIPE_PUBLIC_KEY', 'pk_test_51PWVRZRo7F6YokKUn8fu3QcnwgvWxXH5QJzgpXyEBXKKvJqdYgNJUI5dFAjK0H3dbQZreiMJ6BPrSIcG1qSdlph2005zd453A0'),
+        'secret' => env('STRIPE_SECRET_KEY', 'sk_test_51PWVRZRo7F6YokKUC2wVvQKxOQMwv5ZZRlJHzcLtMN7m3fE1Tn2wMXdmIqmmVtJELvjiBTTY1zX0WMW38YtISpih00E1J0WyIR'),
+    ],
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),

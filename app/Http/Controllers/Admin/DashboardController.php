@@ -311,6 +311,48 @@ class DashboardController extends Controller
 
     }
 
+    public function allOffer($status="")
+    {
+        if ($status=="") {
+            $offers = TaskOffer::with(['createdBy','task'])->get();
+        } else {
+            $offers = TaskOffer::with(['createdBy','task'])->where('status',$status)->get();
+        }
+
+        $allStatus = [
+            ['name'=>'pending', 'bgColor'=>'primary'],
+            ['name'=>'accepted', 'bgColor'=>'success'],
+            ['name'=>'cancelled', 'bgColor'=>'dark'],
+            ['name'=>'declined', 'bgColor'=>'danger'],
+        ];
+
+        return view('backend.offer.allOffer', compact('offers', 'allStatus', 'status'));
+    }
+
+    public function singleOffer($task_offer_id)
+    {
+        $offer = TaskOffer::with(['createdBy','freelancer', 'task'])->where('id',$task_offer_id)->first();
+
+        $allStatus = [
+            ['name'=>'pending', 'bgColor'=>'primary'],
+            ['name'=>'accepted', 'bgColor'=>'success'],
+            ['name'=>'cancelled', 'bgColor'=>'dark'],
+            ['name'=>'declined', 'bgColor'=>'danger'],
+        ];
+
+        return view('backend.offer.singleOffer', compact('offer', 'allStatus'));
+    }
+
+    public function updateOfferStatus(Request $request, $task_offer_id)
+    {
+        $offer = TaskOffer::where('id',$task_offer_id)->first();
+        $offer->status = $request->offer_status;
+        $offer->save();
+
+        return back()->with('success'. 'Task Updated Successfully');
+
+    }
+
     public function allTransaction()
     {
         $walletTransactions = Wallet::all();

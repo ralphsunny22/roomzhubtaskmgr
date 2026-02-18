@@ -7,10 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\CentralLogics\Helpers;
 use Illuminate\Support\Facades\DB;
+use Pusher\Pusher;
 
 use App\Services\FCMService;
 use App\Models\Message;
+use App\Models\Task;
 use App\Models\User;
+
 
 class MessageController extends Controller
 {
@@ -21,7 +24,7 @@ class MessageController extends Controller
         $this->fcmService = $fcmService;
     }
 
-    public function chatContacts()
+    public function chatContacts1()
     {
         // $users = User::select('id', 'display_name')->get();
         $loggedInUserId = Auth::id();
@@ -50,6 +53,72 @@ class MessageController extends Controller
         }
 
     }
+
+    public function chatContacts()
+    {
+        $loggedInUserId = Auth::id();
+
+        try {
+            $messages = DB::table('messages as m')
+                ->select(
+                    'm.id',
+                    'm.message',
+                    'm.task_offer_id',
+                    'm.task_id',
+                    'm.created_at',
+                    'm.updated_at',
+                    DB::raw("IF(m.sender_id = $loggedInUserId, m.receiver_id, m.sender_id) as user_id")
+                )
+                ->where(function ($q) use ($loggedInUserId) {
+                    $q->where('m.sender_id', $loggedInUserId)
+                      ->orWhere('m.receiver_id', $loggedInUserId);
+                })
+                ->whereIn('m.id', function ($sub) use ($loggedInUserId) {
+                    $sub->select(DB::raw('MAX(id)'))
+                        ->from('messages')
+                        ->where(function ($q) use ($loggedInUserId) {
+                            $q->where('sender_id', $loggedInUserId)
+                              ->orWhere('receiver_id', $loggedInUserId);
+                        })
+                        ->groupBy(DB::raw("IF(sender_id = $loggedInUserId, receiver_id, sender_id)"));
+                })
+                ->orderByDesc('m.id')
+                ->get();
+
+            // Attach user & task
+            $messages = $messages->map(function ($msg) {
+                $msg->user = User::select('id', 'name', 'profile_picture')
+                    ->find($msg->user_id);
+
+                // $msg->task = DB::table('tasks')
+                //     ->select('id', 'task_title', 'task_images')
+                //     ->where('id', $msg->task_id)
+                //     ->first();
+                //using Task model instead
+                $msg->task = Task::select('id', 'task_title', 'task_images')
+                    ->where('id', $msg->task_id)
+                    ->first();
+
+                unset($msg->user_id);
+                unset($msg->task_id);
+
+                return $msg;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $messages
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'exp' => $e->getMessage()
+            ]);
+        }
+    }
+
 
     public function chatHistory($task_offer_id, $selected_user_id)
     {
@@ -112,8 +181,35 @@ class MessageController extends Controller
                 'message' => $request->message,
             ]);
 
+            // Initialize Pusher
+            $pusher = new Pusher(
+                config('broadcasting.connections.pusher.key'),
+                config('broadcasting.connections.pusher.secret'),
+                config('broadcasting.connections.pusher.app_id'),
+                [
+                    'cluster' => config('broadcasting.connections.pusher.options.cluster'),
+                    'useTLS'  => true
+                ]
+            );
+
+            $conversationId = "task_{$request->task_id}_offer_{$request->task_offer_id}";
+
+            // Trigger the event on a public channel - exactly like your Node.js code
+            $pusher->trigger($conversationId, 'newMessage', [
+                'newMessage' => [
+                    'id'           => $message->id,
+                    'sender_id'    => $message->sender_id,
+                    'receiver_id'  => $message->receiver_id,
+                    'task_id'  => $message->task_id,
+                    'task_offer_id'  => $message->task_offer_id,
+                    'message'      => $message->message,
+                    'date_time'    => $message->date_time->toISOString(), // ISO format like JS
+                ],
+                'timestamp' => now()->toISOString(),
+            ]);
+
             // Retrieve recipient device token
-            $token = $this->getRecipientDeviceToken($message->receiver_id);
+            // $token = $this->getRecipientDeviceToken($message->receiver_id);
 
             //Using package Send FCM notification, tis wil return true
             // $this->fcmService->sendNotification(
@@ -124,33 +220,33 @@ class MessageController extends Controller
             // );
 
             //using core firebase
-            if ($token) {
-                // Construct the message payload
-                $msg = [
-                    'message' => [
-                        'token' => $token,
-                        "data" => [
-                            "title" => 'New Message',
-                            "body" => (string) $message->message,
-                            "sender_id" => (string) $message->sender_id,
-                            "receiver_id" => (string) $message->receiver_id,
+            // if ($token) {
+            //     // Construct the message payload
+            //     $msg = [
+            //         'message' => [
+            //             'token' => $token,
+            //             "data" => [
+            //                 "title" => 'New Message',
+            //                 "body" => (string) $message->message,
+            //                 "sender_id" => (string) $message->sender_id,
+            //                 "receiver_id" => (string) $message->receiver_id,
 
-                            'task_id' => (string) $message->task_id,
-                            'task_offer_id' => (string) $message->task_offer_id,
-                        ],
-                        'notification' => [
-                            'title' => 'New Message',
-                            'body' => (string) $message->message,
-                            // 'sound' => 'notification.wav', // Specify the sound file name
-                        ],
-                    ],
-                ];
+            //                 'task_id' => (string) $message->task_id,
+            //                 'task_offer_id' => (string) $message->task_offer_id,
+            //             ],
+            //             'notification' => [
+            //                 'title' => 'New Message',
+            //                 'body' => (string) $message->message,
+            //                 // 'sound' => 'notification.wav', // Specify the sound file name
+            //             ],
+            //         ],
+            //     ];
 
-                // Call the sendToFirebase function
-                if (Helpers::sendToFirebase($msg)) {
-                    return response()->json(['success' => true, 'message' => 'Notification sent successfully.', 'data'=>$message]);
-                }
-            }
+            //     // Call the sendToFirebase function
+            //     if (Helpers::sendToFirebase($msg)) {
+            //         return response()->json(['success' => true, 'message' => 'Notification sent successfully.', 'data'=>$message]);
+            //     }
+            // }
 
             return response()->json(['success' => true, 'message' => 'No Receiver token.', 'data'=>$message]);
 

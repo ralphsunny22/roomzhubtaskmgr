@@ -40,6 +40,18 @@ class WalletController extends Controller
             $task = Task::findOrFail($request->task_id);
             $userId = $task->freelancer_id;
 
+            //check if already earned
+            $existingEarning = Wallet::where('user_id', $userId)
+                ->where('task_id', $request->task_id)
+                ->where('task_offer_id', $request->task_offer_id)
+                ->where('type', 'earning')
+                ->first();
+            if ($existingEarning) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Earning already recorded for this task and offer',
+                ], 400);
+            }
             Wallet::create([
                 'user_id' => $userId,
                 'task_id' => $request->task_id,
